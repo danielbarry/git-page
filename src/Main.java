@@ -1,8 +1,13 @@
 package b.gp;
 
 /**
+ * Main.java
+ *
+ * Decide on the execution of the program.
  **/
 public class Main{
+  private int port;
+
   /**
    * main()
    *
@@ -23,6 +28,8 @@ public class Main{
    * @param args The command line arguments.
    **/
   public Main(String[] args){
+    /* Initialise local variables */
+    port = -1;
     /* Loop over the arguments */
     for(int x = 0; x < args.length; x++){
       switch(args[x]){
@@ -30,10 +37,21 @@ public class Main{
         case "--help" :
           x = help(args, x);
           break;
+        case "-s" :
+        case "--server" :
+          x = server(args, x);
+          break;
         default :
           err("Unknown argument '" + args[x] + "'");
           break;
       }
+    }
+    /* Check if we should run a server */
+    if(port >= 0){
+      log("Starting the server");
+      (new Server(port)).loop();
+    }else{
+      log("No action requested");
     }
   }
 
@@ -51,8 +69,32 @@ public class Main{
     System.out.println("");
     System.out.println("  OPTions");
     System.out.println("");
-    System.out.println("    -h  --help  Display this help");
+    System.out.println("    -h  --help    Display this help");
+    System.out.println("    -s  --server  Run the server");
+    System.out.println("                    <INT> The port number");
     System.exit(0);
+    return x;
+  }
+
+  /**
+   * server()
+   *
+   * Get the server settings to be run.
+   *
+   * @param args The command line arguments.
+   * @param x The command line offset.
+   * @return The new command line offset.
+   **/
+  private int server(String[] args, int x){
+    if(++x < args.length){
+      try{
+        port = Integer.parseInt(args[x]);
+      }catch(NumberFormatException e){
+        err("Not a valid port number '" + args[x] + "'");
+      }
+    }else{
+      err("Not enough params to set server port");
+    }
     return x;
   }
 
