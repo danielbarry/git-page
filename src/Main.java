@@ -1,11 +1,14 @@
 package b.gp;
 
+import java.util.ArrayList;
+
 /**
  * Main.java
  *
  * Decide on the execution of the program.
  **/
 public class Main{
+  private ArrayList<String> repos;
   private int port;
 
   /**
@@ -29,6 +32,7 @@ public class Main{
    **/
   public Main(String[] args){
     /* Initialise local variables */
+    repos = new ArrayList<String>();
     port = -1;
     /* Loop over the arguments */
     for(int x = 0; x < args.length; x++){
@@ -36,6 +40,10 @@ public class Main{
         case "-h" :
         case "--help" :
           x = help(args, x);
+          break;
+        case "-r" :
+        case "--repo" :
+          x = repo(args, x);
           break;
         case "-s" :
         case "--server" :
@@ -49,7 +57,7 @@ public class Main{
     /* Check if we should run a server */
     if(port >= 0){
       log("Starting the server");
-      (new Server(port)).loop();
+      (new Server(port, repos.toArray(new String[repos.size()]))).loop();
     }else{
       log("No action requested");
     }
@@ -70,9 +78,29 @@ public class Main{
     System.out.println("  OPTions");
     System.out.println("");
     System.out.println("    -h  --help    Display this help");
+    System.out.println("    -r  --repo    Set a repo to be managed");
+    System.out.println("                    <STR> Path of repository");
     System.out.println("    -s  --server  Run the server");
     System.out.println("                    <INT> The port number");
     System.exit(0);
+    return x;
+  }
+
+  /**
+   * repo()
+   *
+   * Set a repository to be monitored.
+   *
+   * @param args The command line arguments.
+   * @param x The command line offset.
+   * @return The new command line offset.
+   **/
+  private int repo(String[] args, int x){
+    if(++x < args.length){
+      repos.add(args[x]);
+    }else{
+      err("Not enough params to set repository");
+    }
     return x;
   }
 
