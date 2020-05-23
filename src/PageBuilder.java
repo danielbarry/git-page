@@ -72,6 +72,7 @@ public class PageBuilder{
             genHeader(os, paths[1]);
             switch(paths[2]){
               case "commit" :
+              case "diff" :
               case "page" :
                 genPage(os, paths[1], 0);
                 break;
@@ -86,6 +87,9 @@ public class PageBuilder{
             switch(paths[2]){
               case "commit" :
                 genCommit(os, paths[1], paths[3]);
+                break;
+              case "diff" :
+                genDiff(os, paths[1], paths[3]);
                 break;
               case "page" :
                 int page = 0;
@@ -231,7 +235,8 @@ public class PageBuilder{
       return;
     }
     /* Generate pages navigation */
-    os.write(("<a href=\"/" + proj + "/commit/" + commit + "\">Summary</a>").getBytes());
+    os.write(("<a href=\"/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
+    os.write(("<a href=\"/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
     /* Generate details */
     String[] details = Git.gitCommit(repos.get(proj), commit);
     /* Make sure they were generated! */
@@ -252,6 +257,37 @@ public class PageBuilder{
     os.write(("<tr><td>Reference Names</td><td>" + sanitize(details[ 9]) + "</td></tr>").getBytes());
     os.write(("<tr><td>Subject</td><td>"         + sanitize(details[10]) + "</td></tr>").getBytes());
     os.write("</table>".getBytes());
+  }
+
+  /**
+   * genDiff()
+   *
+   * Generate the code difference for a given commit.
+   *
+   * @param os The output stream to be written to.
+   * @param proj The project name to be acted upon.
+   * @param commit The commit to display a summary for.
+   **/
+  private void genDiff(OutputStream os, String proj, String commit) throws IOException{
+    /* Make sure the request params are valid */
+    if(
+      proj == null             ||
+      !repos.containsKey(proj) ||
+      commit == null           ||
+      !Git.validCommit(commit)
+    ){
+      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      return;
+    }
+    /* Generate pages navigation */
+    os.write(("<a href=\"/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
+    os.write(("<a href=\"/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
+    /* Generate details */
+    String diff = Git.gitDiff(repos.get(proj), commit);
+    /* TODO: CDATA needs to be escaped itself. */
+    os.write("<pre><code>".getBytes());
+    os.write(sanitize(diff).getBytes());
+    os.write("</code></pre>".getBytes());
   }
 
   /**
