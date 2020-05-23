@@ -51,7 +51,7 @@ public class PageBuilder{
     /* Handle different cases */
     switch(req){
       case "?" :
-        os.write("<tt><h1>404 :(</h1>Report this!</tt>".getBytes());
+        os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
         break;
       default :
         String[] paths = req.split("/");
