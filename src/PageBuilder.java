@@ -187,7 +187,7 @@ public class PageBuilder{
     String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "\t");
     os.write("<table>".getBytes());
     for(int x = 0; x < logs.length; x++){
-      String log[] = logs[x].split("\t");
+      String log[] = sanitize(logs[x]).split("\t");
       if(log.length == 5 && Git.validCommit(log[0])){
         /* Reduce length of commit message */
         if(log[4].length() > 32){
@@ -242,17 +242,17 @@ public class PageBuilder{
     }
     /* TODO: Escape output from Git for HTML. */
     os.write("<table>".getBytes());
-    os.write(("<tr><td>Hash</td><td>"            + details[ 0] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Tree Hash</td><td>"       + details[ 1] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Parent Hashes</td><td>"   + details[ 2] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Author Name</td><td>"     + details[ 3] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Author Email</td><td>"    + details[ 4] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Author Date</td><td>"     + details[ 5] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Committer Name</td><td>"  + details[ 6] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Committer Email</td><td>" + details[ 7] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Committer Date</td><td>"  + details[ 8] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Reference Names</td><td>" + details[ 9] + "</td></tr>").getBytes());
-    os.write(("<tr><td>Subject</td><td>"         + details[10] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Hash</td><td>"            + sanitize(details[ 0]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Tree Hash</td><td>"       + sanitize(details[ 1]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Parent Hashes</td><td>"   + sanitize(details[ 2]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Author Name</td><td>"     + sanitize(details[ 3]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Author Email</td><td>"    + sanitize(details[ 4]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Author Date</td><td>"     + sanitize(details[ 5]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Name</td><td>"  + sanitize(details[ 6]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Email</td><td>" + sanitize(details[ 7]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Date</td><td>"  + sanitize(details[ 8]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Reference Names</td><td>" + sanitize(details[ 9]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Subject</td><td>"         + sanitize(details[10]) + "</td></tr>").getBytes());
     os.write("</table>".getBytes());
   }
 
