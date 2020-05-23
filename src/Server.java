@@ -12,6 +12,9 @@ import java.net.Socket;
  * Run the server indefinitely and serve pages.
  **/
 public class Server extends Thread{
+  private static final int HTTP_HEAD_SIZE = 256;
+  private static final int HTTP_MAX_INPUT = 65536;
+  private static final int HTTP_MAX_WAIT = 1000;
   private static final byte[] HTTP_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n".getBytes();
 
   private ServerSocket ss;
@@ -80,15 +83,14 @@ public class Server extends Thread{
     OutputStream os = null;
     try{
       /* Make sure we don't get slow loris'd */
-      /* TODO: Pull the value out of a config file. */
-      s.setSoTimeout(1000);
+      s.setSoTimeout(HTTP_MAX_WAIT);
       /* Get the streams we'll re-use */
       is = s.getInputStream();
       os = s.getOutputStream();
       /* Send the header early */
       os.write(HTTP_HEAD);
       /* Get the request */
-      byte[] buff = new byte[256];
+      byte[] buff = new byte[HTTP_HEAD_SIZE];
       is.read(buff);
       String req = new String(buff);
       int reqA = req.indexOf(' ') + 1;
@@ -102,7 +104,7 @@ public class Server extends Thread{
       pb.generate(os, req);
       /* Skip rest of input (up to a maximum) */
       int a = is.available();
-      a = a < 65535 ? a : 65535;
+      a = a < HTTP_MAX_INPUT ? a : HTTP_MAX_INPUT;
       is.skip(a);
       /* Close the connection */
       os.flush();
