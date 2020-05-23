@@ -183,10 +183,28 @@ public class PageBuilder{
     os.write("<hr>".getBytes());
     /* Fill out table */
     /* TODO: Escape output from Git for HTML. */
-    String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "</td><td>");
+    String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "\t");
     os.write("<table>".getBytes());
-    for(String l : logs){
-      os.write(("<tr><td>" + l + "</td></tr>").getBytes());
+    for(int x = 0; x < logs.length; x++){
+      String log[] = logs[x].split("\t");
+      if(log.length == 5 && Git.validCommit(log[0])){
+        /* Reduce length of commit message */
+        if(log[4].length() > 32){
+          log[4] = log[4].substring(0, 28) + "[..]";
+        }
+        /* Write the entry */
+        os.write((
+          "<tr>" +
+            "<td><a href=\"/" + proj + "/commit/" + log[0] + "\">" + log[0] + "</td>" +
+            "<td>" + log[1] + "</td>" +
+            "<td>" + log[2] + "</td>" +
+            "<td>" + log[3] + "</td>" +
+            "<td>" + log[4] + "</td>" +
+          "</tr>"
+        ).getBytes());
+      }else{
+        Main.warn("Malformed commit messaged skipped");
+      }
     }
     os.write("</table>".getBytes());
   }
