@@ -78,6 +78,41 @@ public class Git{
   }
 
   /**
+   * gitDiff()
+   *
+   * Get a code difference for a given commit.
+   *
+   * @param dir The directory of the repository.
+   * @param commit The commit name.
+   * @return The raw diff.
+   **/
+  public static String gitDiff(File dir, String commit){
+    /* Validate the commit to ensure no arbitrary command execution */
+    if(!validCommit(commit)){
+      Main.warn("Bad commit string");
+      return new String();
+    }
+    byte[] buff = exec(
+      dir,
+      new String[]{
+        "git",
+        "diff",
+        commit
+      }
+    );
+    if(buff != null){
+      if(buff.length >= GIT_MAX_INPUT){
+        return new String(buff) + "\n\n[-- DIFF TOO LONG --]";
+      }else{
+        return new String(buff);
+      }
+    }else{
+      Main.warn("Command failed to run");
+      return new String();
+    }
+  }
+
+  /**
    * exec()
    *
    * Execute a give command and return the output. Note that this command will
