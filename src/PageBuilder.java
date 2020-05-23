@@ -284,7 +284,6 @@ public class PageBuilder{
     os.write(("<a href=\"/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
     /* Generate details */
     String diff = Git.gitDiff(repos.get(proj), commit);
-    /* TODO: CDATA needs to be escaped itself. */
     os.write("<pre><code>".getBytes());
     os.write(sanitize(diff).getBytes());
     os.write("</code></pre>".getBytes());
