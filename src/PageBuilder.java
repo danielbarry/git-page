@@ -183,6 +183,7 @@ public class PageBuilder{
     os.write("<hr>".getBytes());
     /* Fill out table */
     /* TODO: Escape output from Git for HTML. */
+    /* TODO: Not sure if tab character is a safe delimiter. */
     String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "\t");
     os.write("<table>".getBytes());
     for(int x = 0; x < logs.length; x++){
