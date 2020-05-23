@@ -176,11 +176,11 @@ public class PageBuilder{
     }
     /* Generate pages navigation */
     if(page > 0){
-      os.write(("<a href=\"/" + proj + "/page/" + (page - 1) + "\">Prev</a> ").getBytes());
+      os.write(("<a href=\"/" + proj + "/page/" + (page - 1) + "\">Prev</a> < ").getBytes());
     }
-    os.write(("<a href=\"/" + proj + "/page/" + page + "\">" + page + "</a> ").getBytes());
+    os.write(("<a href=\"/" + proj + "/page/" + page + "\">" + page + "</a> > ").getBytes());
     os.write(("<a href=\"/" + proj + "/page/" + (page + 1) + "\">Next</a>").getBytes());
-    os.write("<br><br>".getBytes());
+    os.write("<hr>".getBytes());
     /* Fill out table */
     String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "</td><td>");
     os.write("<table>".getBytes());
