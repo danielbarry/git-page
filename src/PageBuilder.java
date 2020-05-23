@@ -187,7 +187,7 @@ public class PageBuilder{
     String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "\t");
     os.write("<table>".getBytes());
     for(int x = 0; x < logs.length; x++){
-      String log[] = sanitize(logs[x]).split("\t");
+      String log[] = logs[x].split("\t");
       if(log.length == 5 && Git.validCommit(log[0])){
         /* Reduce length of commit message */
         if(log[4].length() > 32){
@@ -196,11 +196,11 @@ public class PageBuilder{
         /* Write the entry */
         os.write((
           "<tr>" +
-            "<td><a href=\"/" + proj + "/commit/" + log[0] + "\">" + log[0] + "</td>" +
-            "<td>" + log[1] + "</td>" +
-            "<td>" + log[2] + "</td>" +
-            "<td>" + log[3] + "</td>" +
-            "<td>" + log[4] + "</td>" +
+            "<td><a href=\"/" + proj + "/commit/" + log[0] + "\">" + sanitize(log[0]) + "</td>" +
+            "<td>" + sanitize(log[1]) + "</td>" +
+            "<td>" + sanitize(log[2]) + "</td>" +
+            "<td>" + sanitize(log[3]) + "</td>" +
+            "<td>" + sanitize(log[4]) + "</td>" +
           "</tr>"
         ).getBytes());
       }else{
