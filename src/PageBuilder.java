@@ -302,4 +302,62 @@ public class PageBuilder{
             .replace("<", "&lt;")
             .replace(">", "&gt;");
   }
+
+  /**
+   * markup()
+   *
+   * Provide very basic markup for markdown files.
+   *
+   * @param s The input line and ignore the global context.
+   * @param ms The current markdown parser state.
+   * @return The marked up line.
+   **/
+  private static String markup(String s, MarkState ms){
+    /* Check line is worth parsing */
+    if(s == null){
+      return s;
+    }
+    /* If line is blank, throw a new line in */
+    if(s.length() <= 0){
+      return "<br>";
+    }
+    /* Check pre depth 3 */
+    if(s.length() >= 3){
+      /* Pre: Check for code */
+      if(s.charAt(0) == '`' && s.charAt(1) == '`' && s.charAt(2) == '`'){
+        if(!ms.code){
+          ms.code = true;
+          return "<pre><code>";
+        }else{
+          ms.code = false;
+          return "</pre></code>";
+        }
+      }
+    }
+    /* If we're processing a code block we know what to do */
+    if(ms.code){
+      return sanitize(s) + "\n";
+    }
+    /* Check pre depth 2 */
+    if(s.length() >= 2){
+      /* Pre: Check for headers */
+      if(s.charAt(0) == '#'){
+        /* Check for H2 */
+        if(s.charAt(1) != '#'){
+          s = "<h1>" + s + "</h1>";
+        }else{
+          s = "<h2>" + s + "</h2>";
+        }
+      }
+    }
+    /* Check pre depth 4 */
+    if(s.length() >= 4){
+      /* Pre: Check for code */
+      if(s.charAt(0) == s.charAt(1) && s.charAt(2) == s.charAt(3) && s.charAt(0) == ' '){
+        return "<pre><code>" + sanitize(s) + "</code></pre><br>";
+      }
+    }
+    /* Return whatever we have left */
+    return s + "<br>";
+  }
 }
