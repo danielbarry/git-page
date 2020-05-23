@@ -182,6 +182,7 @@ public class PageBuilder{
     os.write(("<a href=\"/" + proj + "/page/" + (page + 1) + "\">Next</a>").getBytes());
     os.write("<hr>".getBytes());
     /* Fill out table */
+    /* TODO: Escape output from Git for HTML. */
     String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "</td><td>");
     os.write("<table>".getBytes());
     for(String l : logs){
@@ -220,6 +221,7 @@ public class PageBuilder{
       os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
       return;
     }
+    /* TODO: Escape output from Git for HTML. */
     os.write("<table>".getBytes());
     os.write(("<tr><td>Hash</td><td>"            + details[ 0] + "</td></tr>").getBytes());
     os.write(("<tr><td>Tree Hash</td><td>"       + details[ 1] + "</td></tr>").getBytes());
