@@ -304,7 +304,7 @@ public class PageBuilder{
         /* Write the entry */
         os.write((
           "<tr>" +
-            "<td><a href=\"/" + proj + "/commit/" + log[0] + "\">" + sanitize(log[0]) + "</td>" +
+            "<td><a href=\"/" + proj + "/commit/" + log[0] + "\">" + log[0] + "</td>" +
             "<td>" + sanitize(log[1]) + "</td>" +
             "<td>" + sanitize(log[2]) + "</td>" +
             "<td>" + sanitize(log[3]) + "</td>" +
