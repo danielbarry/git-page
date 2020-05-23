@@ -1,5 +1,6 @@
 package b.gp;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 
@@ -17,12 +18,15 @@ public class Git{
    * Execute a give command and return the output. Note that this command will
    * block until complete.
    *
+   * @param dir The working directory to execute the command.
    * @param cmd The command and parameters to be run.
    * @return The result of the command.
    **/
-  private static byte[] exec(String[] cmd){
+  private static byte[] exec(File dir, String[] cmd){
     try{
-      Process p = (new ProcessBuilder(cmd)).start();
+      ProcessBuilder pb = new ProcessBuilder(cmd);
+      pb.directory(dir);
+      Process p = pb.start();
       p.waitFor();
       InputStream is = p.getInputStream();
       int a = is.available();
