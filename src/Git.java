@@ -13,6 +13,36 @@ public class Git{
   private static final int GIT_MAX_INPUT = 65536;
 
   /**
+   * gitLog()
+   *
+   * Get a list of commits, otherwise an empty list.
+   *
+   * @param dir The directory of the repository.
+   * @param start The start of the commits to be displayed.
+   * @param count The number of commits to be displayed.
+   * @param sep The separator to be used.
+   **/
+  public static String[] gitLog(File dir, int start, int count, String sep){
+    byte[] buff = exec(
+      dir,
+      new String[]{
+        "git",
+        "log",
+        "--all",
+        "--skip=" + start,
+        "--max-count=" + count,
+        "--pretty=format:%h" + sep + "%D" + sep + "%cI" + sep + "%cl" + sep + "%s"
+      }
+    );
+    if(buff != null){
+      return (new String(buff)).split("\n");
+    }else{
+      Main.warn("Command failed to run");
+      return new String[]{};
+    }
+  }
+
+  /**
    * exec()
    *
    * Execute a give command and return the output. Note that this command will
