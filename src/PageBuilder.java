@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Scanner;
 
 /**
  * PageBuilder.java
@@ -11,6 +12,19 @@ import java.util.HashMap;
  * Build the output page to be displayed by the client.
  **/
 public class PageBuilder{
+  /**
+   * MarkState.PageBuilder.java
+   *
+   * Track the state of the simple markdown parser.
+   **/
+  private class MarkState{
+    public String line;
+    public boolean code = false;
+  }
+
+  private static final String[] INDEX_NAMES = new String[]{ "readme", "index" };
+  private static final String[] INDEX_EXTS = new String[]{ "md", "markdown", "txt", "htm", "html" };
+
   private HashMap<String, File> repos;
 
   /**
@@ -64,8 +78,7 @@ public class PageBuilder{
             break;
           case 2 :
             genHeader(os, paths[1]);
-            /* TODO: Should probably show readme. */
-            genPage(os, paths[1], 0);
+            genOverview(os, paths[1]);
             genFooter(os);
             break;
           case 3 :
@@ -125,6 +138,8 @@ public class PageBuilder{
    * navigation is displayed.
    **/
   private void genHeader(OutputStream os, String proj) throws IOException{
+    /* Small amount of CSS */
+    os.write("<style>pre{background:#eee;border-left:4px solid #222;padding:4px;}</style>".getBytes());
     /* Header and core formatting */
     os.write("<tt><h1>Git Page</h1>".getBytes());
     /* Core navigation */
@@ -132,7 +147,8 @@ public class PageBuilder{
     os.write("<hr>".getBytes());
     /* Project navigation if required */
     if(proj != null && repos.containsKey(proj)){
-      os.write(("<a href=\"/" + proj + "\">" + proj + "</a>").getBytes());
+      os.write(("<a href=\"/" + proj + "\">" + proj + "</a> ").getBytes());
+      os.write(("<a href=\"/" + proj + "/commit\">Commits</a>").getBytes());
       os.write("<hr>".getBytes());
     }
   }
@@ -161,6 +177,90 @@ public class PageBuilder{
       os.write(("<li><a href=\"/" + key + "\">" + key + "</a></li>").getBytes());
     }
     os.write("</ul>".getBytes());
+  }
+
+  /**
+   * genOverview()
+   *
+   * Generate the repository overview page.
+   *
+   * @param os The output stream to be written to.
+   * @param proj The project name to be acted upon.
+   **/
+  private void genOverview(OutputStream os, String proj) throws IOException{
+    /* Make sure the request params are valid */
+    if(proj == null || !repos.containsKey(proj)){
+      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      return;
+    }
+    /* Find the overview page */
+    File file = null;
+    int ext = 0;
+    File[] files = repos.get(proj).listFiles();
+    for(int x = 0; x < files.length && file == null; x++){
+      /* See if we get a match */
+      if(files[x].isFile()){
+        /* Loop index names */
+        for(int i = 0; i < INDEX_NAMES.length && file == null; i++){
+          /* Loop extensions */
+          for(int e = 0; e < INDEX_EXTS.length && file == null; e++){
+            String f = INDEX_NAMES[i] + "." + INDEX_EXTS[e];
+            if(files[x].getName().toLowerCase().equals(f)){
+              file = files[x];
+              ext = e;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if(file != null){
+      /* Pre-markup for text file */
+      if(ext == 2){
+        os.write("</code></pre>".getBytes());
+      }else{
+        /* Otherwise lets make sure all JS is disabled */
+        os.write((
+          "<script>" +
+            "throw new Error(\"Disabled\");" +
+            "return false;" +
+            "die();" +
+            "debugger;" +
+          "</script>"
+        ).getBytes());
+      }
+      MarkState ms = new MarkState();
+      /* Load the file */
+      Scanner s = new Scanner(file);
+      while(s.hasNextLine()){
+        switch(ext){
+          /* Markdown */
+          case 0 :
+          case 1 :
+            os.write(markup(s.nextLine(), ms).getBytes());
+            break;
+          /* Plain text */
+          case 2 :
+            os.write(sanitize(s.nextLine() + "\n").getBytes());
+            break;
+          /* HTML */
+          case 3 :
+          case 4 :
+            os.write(s.nextLine().getBytes());
+            break;
+          default :
+            Main.warn("Unsupported extension");
+            break;
+        }
+      }
+      s.close();
+      /* Post-markup for text file */
+      if(ext == 2){
+        os.write("</code></pre>".getBytes());
+      }
+    }else{
+      os.write("No recognized overview found.".getBytes());
+    }
   }
 
   /**
