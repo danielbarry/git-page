@@ -182,7 +182,6 @@ public class PageBuilder{
     os.write(("<a href=\"/" + proj + "/page/" + (page + 1) + "\">Next</a>").getBytes());
     os.write("<hr>".getBytes());
     /* Fill out table */
-    /* TODO: Escape output from Git for HTML. */
     /* TODO: Not sure if tab character is a safe delimiter. */
     String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "\t");
     os.write("<table>".getBytes());
@@ -240,7 +239,6 @@ public class PageBuilder{
       os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
       return;
     }
-    /* TODO: Escape output from Git for HTML. */
     os.write("<table>".getBytes());
     os.write(("<tr><td>Hash</td><td>"            + sanitize(details[ 0]) + "</td></tr>").getBytes());
     os.write(("<tr><td>Tree Hash</td><td>"       + sanitize(details[ 1]) + "</td></tr>").getBytes());
