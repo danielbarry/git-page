@@ -62,7 +62,7 @@ public class Git{
         "git",
         "log",
         "--all",
-        "--max-count=" + 1,
+        "--max-count=1",
         "--pretty=format:%H%n%T%n%P%n%an%n%ae%n%aI%n%cn%n%ce%n%cI%n%D%n%s",
         commit
       }
