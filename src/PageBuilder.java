@@ -26,6 +26,7 @@ public class PageBuilder{
   private static final String[] INDEX_EXTS = new String[]{ "md", "markdown", "txt", "htm", "html" };
 
   private HashMap<String, File> repos;
+  private String url;
 
   /**
    * PageBuilder()
@@ -33,8 +34,9 @@ public class PageBuilder{
    * Load all of the repositories that are to be displayed by the web server.
    *
    * @param repos The repositories to be managed.
+   * @param url The URL to be used for the RSS feed.
    **/
-  public PageBuilder(String[] repos){
+  public PageBuilder(String[] repos, String url){
     this.repos = new HashMap<String, File>();
     for(String r : repos){
       File d = new File(r);
@@ -51,6 +53,7 @@ public class PageBuilder{
         Main.warn("Unable to use repository '" + r + "'");
       }
     }
+    this.url = url;
   }
 
   /**

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class Main{
   private ArrayList<String> repos;
   private int port;
+  private String url;
 
   /**
    * main()
@@ -34,6 +35,7 @@ public class Main{
     /* Initialise local variables */
     repos = new ArrayList<String>();
     port = -1;
+    url = "http://127.0.0.1";
     /* Loop over the arguments */
     for(int x = 0; x < args.length; x++){
       switch(args[x]){
@@ -49,6 +51,10 @@ public class Main{
         case "--server" :
           x = server(args, x);
           break;
+        case "-u" :
+        case "--url" :
+          x = url(args, x);
+          break;
         default :
           err("Unknown argument '" + args[x] + "'");
           break;
@@ -57,7 +63,7 @@ public class Main{
     /* Check if we should run a server */
     if(port >= 0){
       log("Starting the server");
-      (new Server(port, repos.toArray(new String[repos.size()]))).loop();
+      (new Server(port, url, repos.toArray(new String[repos.size()]))).loop();
     }else{
       log("No action requested");
     }
@@ -82,6 +88,7 @@ public class Main{
     System.out.println("                    <STR> Path of repository");
     System.out.println("    -s  --server  Run the server");
     System.out.println("                    <INT> The port number");
+    System.out.println("    -u  --url     The URL to be used in the RSS");
     System.exit(0);
     return x;
   }
@@ -120,6 +127,24 @@ public class Main{
       }catch(NumberFormatException e){
         err("Not a valid port number '" + args[x] + "'");
       }
+    }else{
+      err("Not enough params to set server port");
+    }
+    return x;
+  }
+
+  /**
+   * url()
+   *
+   * Set the URL to be used for the RSS feed.
+   *
+   * @param args The command line arguments.
+   * @param x The command line offset.
+   * @return The new command line offset.
+   **/
+  private int url(String[] args, int x){
+    if(++x < args.length){
+      url = args[x];
     }else{
       err("Not enough params to set server port");
     }

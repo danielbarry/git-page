@@ -27,9 +27,10 @@ public class Server extends Thread{
    * Initialise the server.
    *
    * @param port The port number to start the server on.
+   * @param url The URL to be used for the RSS feed.
    * @param repos The directories of the repositories of interest.
    **/
-  public Server(int port, String[] repos){
+  public Server(int port, String url, String[] repos){
     try{
       ss = new ServerSocket(port);
     }catch(IOException e){
@@ -37,7 +38,7 @@ public class Server extends Thread{
       ss = null;
     }
     s = null;
-    pb = new PageBuilder(repos);
+    pb = new PageBuilder(repos, url + ":" + port);
   }
 
   /**
