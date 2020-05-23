@@ -255,4 +255,18 @@ public class PageBuilder{
     os.write(("<tr><td>Subject</td><td>"         + details[10] + "</td></tr>").getBytes());
     os.write("</table>".getBytes());
   }
+
+  /**
+   * sanitize()
+   *
+   * Ensure that we sanitize any Strings from Git to not contain HTML.
+   *
+   * @param s The string to be sanitized.
+   * @return The sanitized string.
+   **/
+  private static String sanitize(String s){
+    return s.replace("&", "&amp;");
+            .replace("<", "&lt;");
+            .replace(">", "&gt;");
+  }
 }
