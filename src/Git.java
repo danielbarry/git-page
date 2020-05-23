@@ -95,7 +95,7 @@ public class Git{
       dir,
       new String[]{
         "git",
-        "diff",
+        "show",
         commit
       }
     );
