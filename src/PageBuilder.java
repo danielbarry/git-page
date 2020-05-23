@@ -58,19 +58,20 @@ public class PageBuilder{
         switch(paths.length){
           case 0 :
           case 1 :
-            genHeader(os);
+            genHeader(os, null);
             genRoot(os);
             genFooter(os);
             break;
           case 2 :
-            genHeader(os);
+            genHeader(os, paths[1]);
             /* TODO: Should probably show readme. */
             genPage(os, paths[1], 0);
             genFooter(os);
             break;
           case 3 :
-            genHeader(os);
+            genHeader(os, paths[1]);
             switch(paths[2]){
+              case "commit" :
               case "page" :
                 genPage(os, paths[1], 0);
                 break;
@@ -81,8 +82,11 @@ public class PageBuilder{
             genFooter(os);
             break;
           case 4 :
-            genHeader(os);
+            genHeader(os, paths[1]);
             switch(paths[2]){
+              case "commit" :
+                genCommit(os, paths[1], paths[3]);
+                break;
               case "page" :
                 int page = 0;
                 try{
@@ -113,13 +117,20 @@ public class PageBuilder{
    * Generate a header for the page.
    *
    * @param os The output stream to be written to.
+   * @param proj The project name to be acted upon. If NULL, no project
+   * navigation is displayed.
    **/
-  private void genHeader(OutputStream os) throws IOException{
+  private void genHeader(OutputStream os, String proj) throws IOException{
     /* Header and core formatting */
     os.write("<tt><h1>Git Page</h1>".getBytes());
     /* Core navigation */
     os.write("<a href=\"/\">Home</a>".getBytes());
-    os.write("<br><br>".getBytes());
+    os.write("<hr>".getBytes());
+    /* Project navigation if required */
+    if(proj != null && repos.containsKey(proj)){
+      os.write(("<a href=\"/" + proj + "\">" + proj + "</a>").getBytes());
+      os.write("<hr>".getBytes());
+    }
   }
 
   /**
