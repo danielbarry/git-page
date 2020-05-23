@@ -70,4 +70,26 @@ public class Git{
     }
     return null;
   }
+
+  /**
+   * validCommit()
+   *
+   * Make sure a given commit is valid.
+   *
+   * @param commit The commit String to be checked.
+   * @return True if value, otherwise false.
+   **/
+  public static boolean validCommit(String commit){
+    if(commit != null && commit.length() == 7){
+      for(int x = 0; x < commit.length(); x++){
+        char c = commit.charAt(x);
+        if(!(c >= '0' && c <= '9') && !(c >= 'a' && c <= 'f')){
+          return false;
+        }
+      }
+    }else{
+      return false;
+    }
+    return true;
+  }
 }
