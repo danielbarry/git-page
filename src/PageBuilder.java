@@ -217,7 +217,7 @@ public class PageBuilder{
     if(file != null){
       /* Pre-markup for text file */
       if(ext == 2){
-        os.write("</code></pre>".getBytes());
+        os.write("<pre><code>".getBytes());
       }else{
         /* Otherwise lets make sure all JS is disabled */
         os.write((
@@ -430,7 +430,7 @@ public class PageBuilder{
           return "<pre><code>";
         }else{
           ms.code = false;
-          return "</pre></code>";
+          return "</code></pre>";
         }
       }
     }
