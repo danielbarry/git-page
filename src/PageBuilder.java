@@ -93,6 +93,9 @@ public class PageBuilder{
                 genPage(os, paths[1], 0);
                 genFooter(os);
                 break;
+              case "rss" :
+                genRSS(os, paths[1]);
+                break;
               default :
                 genHeader(os, paths[1]);
                 os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
@@ -153,7 +156,8 @@ public class PageBuilder{
     /* Project navigation if required */
     if(proj != null && repos.containsKey(proj)){
       os.write(("<a href=\"/" + proj + "\">" + proj + "</a> ").getBytes());
-      os.write(("<a href=\"/" + proj + "/commit\">Commits</a>").getBytes());
+      os.write(("<a href=\"/" + proj + "/commit\">Commits</a> ").getBytes());
+      os.write(("<a href=\"/" + proj + "/rss\">RSS</a>").getBytes());
       os.write("<hr>".getBytes());
     }
   }
@@ -464,5 +468,56 @@ public class PageBuilder{
     }
     /* Return whatever we have left */
     return s + "<br>";
+  }
+
+  /**
+   * genRSS()
+   *
+   * Generate an RSS feed for a given project.
+   *
+   * @param os The output stream to be written to.
+   * @param proj The project name to be acted upon.
+   **/
+  private void genRSS(OutputStream os, String proj) throws IOException{
+    /* Make sure the request params are valid */
+    if(proj == null || !repos.containsKey(proj)){
+      /* TODO: Not clear what to write if feed cannot be generated. */
+      return;
+    }
+    /* Generate RSS headers */
+    os.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><rss version=\"2.0\"><channel>".getBytes());
+    os.write(("<title>" + proj + "</title>").getBytes());
+    os.write(("<description>RSS feed for commits to " + proj + ".</description>").getBytes());
+    os.write(("<link>" + url + "/" + proj + "</link>").getBytes());
+    /* TODO: Not sure if tab character is a safe delimiter. */
+    String[] logs = Git.gitLog(repos.get(proj), 0, 16, "\t");
+    for(int x = 0; x < logs.length; x++){
+      String log[] = logs[x].split("\t");
+      if(log.length == 5 && Git.validCommit(log[0])){
+        /* Reduce length of commit message */
+        String title = log[4];
+        if(title.length() > 32){
+          title = title.substring(0, 28) + "[..]";
+        }
+        /* Write the item entry */
+        os.write((
+          "<item>" +
+            "<title>" + sanitize(title) + "</title>" +
+            "<description>" +
+              log[0] + " " +
+              sanitize(log[1]) + " " +
+              sanitize(log[2]) + " " +
+              sanitize(log[3]) + " " +
+              sanitize(log[4]) + " " +
+            "</description>" +
+            "<link>" + url + "/" + proj + "/commit/" + log[0] + "</link>" +
+          "</item>"
+        ).getBytes());
+      }else{
+        Main.warn("Malformed commit messaged skipped");
+      }
+    }
+    /* Generate RSS footers */
+    os.write("</channel></rss>".getBytes());
   }
 }
