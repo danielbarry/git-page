@@ -265,8 +265,8 @@ public class PageBuilder{
    * @return The sanitized string.
    **/
   private static String sanitize(String s){
-    return s.replace("&", "&amp;");
-            .replace("<", "&lt;");
+    return s.replace("&", "&amp;")
+            .replace("<", "&lt;")
             .replace(">", "&gt;");
   }
 }
