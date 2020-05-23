@@ -21,6 +21,7 @@ public class Git{
    * @param start The start of the commits to be displayed.
    * @param count The number of commits to be displayed.
    * @param sep The separator to be used.
+   * @return List of commits, one per line.
    **/
   public static String[] gitLog(File dir, int start, int count, String sep){
     byte[] buff = exec(
@@ -49,6 +50,7 @@ public class Git{
    *
    * @param dir The directory of the repository.
    * @param commit The commit name.
+   * @return The commit information.
    **/
   public static String[] gitCommit(File dir, String commit){
     /* Validate the commit to ensure no arbitrary command execution */
