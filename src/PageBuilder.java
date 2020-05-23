@@ -189,4 +189,49 @@ public class PageBuilder{
     }
     os.write("</table>".getBytes());
   }
+
+  /**
+   * genCommit()
+   *
+   * Generate a given commit summary for a given project, otherwise display an
+   * error.
+   *
+   * @param os The output stream to be written to.
+   * @param proj The project name to be acted upon.
+   * @param commit The commit to display a summary for.
+   **/
+  private void genCommit(OutputStream os, String proj, String commit) throws IOException{
+    /* Make sure the request params are valid */
+    if(
+      proj == null             ||
+      !repos.containsKey(proj) ||
+      commit == null           ||
+      !Git.validCommit(commit)
+    ){
+      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      return;
+    }
+    /* Generate pages navigation */
+    os.write(("<a href=\"/" + proj + "/commit/" + commit + "\">Summary</a>").getBytes());
+    /* Generate details */
+    String[] details = Git.gitCommit(repos.get(proj), commit);
+    /* Make sure they were generated! */
+    if(details.length != 11){
+      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      return;
+    }
+    os.write("<table>".getBytes());
+    os.write(("<tr><td>Hash</td><td>"            + details[ 0] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Tree Hash</td><td>"       + details[ 1] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Parent Hashes</td><td>"   + details[ 2] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Author Name</td><td>"     + details[ 3] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Author Email</td><td>"    + details[ 4] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Author Date</td><td>"     + details[ 5] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Name</td><td>"  + details[ 6] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Email</td><td>" + details[ 7] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Date</td><td>"  + details[ 8] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Reference Names</td><td>" + details[ 9] + "</td></tr>").getBytes());
+    os.write(("<tr><td>Subject</td><td>"         + details[10] + "</td></tr>").getBytes());
+    os.write("</table>".getBytes());
+  }
 }
