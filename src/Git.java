@@ -43,6 +43,39 @@ public class Git{
   }
 
   /**
+   * gitCommit()
+   *
+   * Get specific information about a given commit.
+   *
+   * @param dir The directory of the repository.
+   * @param commit The commit name.
+   **/
+  public static String[] gitCommit(File dir, String commit){
+    /* Validate the commit to ensure no arbitrary command execution */
+    if(!validCommit(commit)){
+      Main.warn("Bad commit string");
+      return new String[]{};
+    }
+    byte[] buff = exec(
+      dir,
+      new String[]{
+        "git",
+        "log",
+        "--all",
+        "--max-count=" + 1,
+        "--pretty=format:%H%n%T%n%P%n%an%n%ae%n%aI%n%cn%n%ce%n%cI%n%D%n%s",
+        commit
+      }
+    );
+    if(buff != null){
+      return (new String(buff)).split("\n");
+    }else{
+      Main.warn("Command failed to run");
+      return new String[]{};
+    }
+  }
+
+  /**
    * exec()
    *
    * Execute a give command and return the output. Note that this command will
