@@ -85,18 +85,20 @@ public class PageBuilder{
             genFooter(os);
             break;
           case 3 :
-            genHeader(os, paths[1]);
             switch(paths[2]){
               case "commit" :
               case "diff" :
               case "page" :
+                genHeader(os, paths[1]);
                 genPage(os, paths[1], 0);
+                genFooter(os);
                 break;
               default :
+                genHeader(os, paths[1]);
                 os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+                genFooter(os);
                 break;
             }
-            genFooter(os);
             break;
           case 4 :
             genHeader(os, paths[1]);
