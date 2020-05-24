@@ -194,10 +194,11 @@ public class PageBuilder{
     os.write(pageHeader);
     /* Project navigation if required */
     if(proj != null && repos.containsKey(proj)){
+      os.write("<nav>".getBytes());
       os.write(("<a href=\"/" + proj + "\">" + proj + "</a> ").getBytes());
       os.write(("<a href=\"/" + proj + "/commit\">Commits</a> ").getBytes());
       os.write(("<a href=\"/" + proj + "/rss\">RSS</a>").getBytes());
-      os.write("<hr>".getBytes());
+      os.write("</nav>".getBytes());
     }
   }
 
@@ -327,12 +328,13 @@ public class PageBuilder{
       return;
     }
     /* Generate pages navigation */
+    os.write("<nav class=\"sub\">".getBytes());
     if(page > 0){
       os.write(("<a href=\"/" + proj + "/page/" + (page - 1) + "\">Prev</a> < ").getBytes());
     }
     os.write(("<a href=\"/" + proj + "/page/" + page + "\">" + page + "</a> > ").getBytes());
     os.write(("<a href=\"/" + proj + "/page/" + (page + 1) + "\">Next</a>").getBytes());
-    os.write("<hr>".getBytes());
+    os.write("</nav>".getBytes());
     /* Fill out table */
     /* TODO: Not sure if tab character is a safe delimiter. */
     String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "\t");
@@ -383,8 +385,10 @@ public class PageBuilder{
       return;
     }
     /* Generate pages navigation */
+    os.write("<nav class=\"sub\">".getBytes());
     os.write(("<a href=\"/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
     os.write(("<a href=\"/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
+    os.write("</nav>".getBytes());
     /* Generate details */
     String[] details = Git.gitCommit(repos.get(proj), commit);
     /* Make sure they were generated! */
@@ -428,8 +432,10 @@ public class PageBuilder{
       return;
     }
     /* Generate pages navigation */
+    os.write("<nav class=\"sub\">".getBytes());
     os.write(("<a href=\"/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
     os.write(("<a href=\"/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
+    os.write("</nav>".getBytes());
     /* Generate details */
     String diff = Git.gitDiff(repos.get(proj), commit);
     os.write("<pre><code>".getBytes());
