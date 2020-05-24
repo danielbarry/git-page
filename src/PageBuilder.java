@@ -171,6 +171,7 @@ public class PageBuilder{
    * @param os The output stream to be written to.
    **/
   private void genFooter(OutputStream os) throws IOException{
+    /* Do nothing */
   }
 
   /**
