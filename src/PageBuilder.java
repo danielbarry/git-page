@@ -24,6 +24,7 @@ public class PageBuilder{
 
   private static final String[] INDEX_NAMES = new String[]{ "readme", "index" };
   private static final String[] INDEX_EXTS = new String[]{ "md", "markdown", "txt", "htm", "html" };
+  private static final byte[] INDEX_BAD = "<h1>Bad Request</h1>".getBytes();
 
   private HashMap<String, File> repos;
   private String url;
@@ -68,7 +69,7 @@ public class PageBuilder{
     /* Handle different cases */
     switch(req){
       case "?" :
-        os.write("<h1>Bad Request</h1>".getBytes());
+        os.write(INDEX_BAD);
         break;
       default :
         String[] paths = req.split("/");
@@ -98,7 +99,7 @@ public class PageBuilder{
                 break;
               default :
                 genHeader(os, paths[1]);
-                os.write("<h1>Bad Request</h1>".getBytes());
+                os.write(INDEX_BAD);
                 genFooter(os);
                 break;
             }
@@ -123,13 +124,13 @@ public class PageBuilder{
                 genPage(os, paths[1], page);
                 break;
               default :
-                os.write("<h1>Bad Request</h1>".getBytes());
+                os.write(INDEX_BAD);
                 break;
             }
             genFooter(os);
             break;
           default :
-            os.write("<h1>Bad Request</h1>".getBytes());
+            os.write(INDEX_BAD);
             break;
         }
         break;
@@ -198,7 +199,7 @@ public class PageBuilder{
   private void genOverview(OutputStream os, String proj) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj)){
-      os.write("<h1>Bad Request</h1>".getBytes());
+      os.write(INDEX_BAD);
       return;
     }
     /* Find the overview page */
@@ -283,7 +284,7 @@ public class PageBuilder{
   private void genPage(OutputStream os, String proj, int page) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj) || page < 0){
-      os.write("<h1>Bad Request</h1>".getBytes());
+      os.write(INDEX_BAD);
       return;
     }
     /* Generate pages navigation */
@@ -339,7 +340,7 @@ public class PageBuilder{
       commit == null           ||
       !Git.validCommit(commit)
     ){
-      os.write("<h1>Bad Request</h1>".getBytes());
+      os.write(INDEX_BAD);
       return;
     }
     /* Generate pages navigation */
@@ -349,7 +350,7 @@ public class PageBuilder{
     String[] details = Git.gitCommit(repos.get(proj), commit);
     /* Make sure they were generated! */
     if(details.length != 11){
-      os.write("<h1>Bad Request</h1>".getBytes());
+      os.write(INDEX_BAD);
       return;
     }
     os.write("<table>".getBytes());
@@ -384,7 +385,7 @@ public class PageBuilder{
       commit == null           ||
       !Git.validCommit(commit)
     ){
-      os.write("<h1>Bad Request</h1>".getBytes());
+      os.write(INDEX_BAD);
       return;
     }
     /* Generate pages navigation */
