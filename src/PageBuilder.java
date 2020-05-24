@@ -221,11 +221,11 @@ public class PageBuilder{
    * @param os The output stream to be written to.
    **/
   private void genRoot(OutputStream os) throws IOException{
-    os.write("<ul>".getBytes());
+    os.write("<table>".getBytes());
     for(String key : repos.keySet()){
-      os.write(("<li><a href=\"/" + key + "\">" + key + "</a></li>").getBytes());
+      os.write(("<tr><td><a href=\"/" + key + "\">" + key + "</a></li></td></tr>").getBytes());
     }
-    os.write("</ul>".getBytes());
+    os.write("</table>".getBytes());
   }
 
   /**
