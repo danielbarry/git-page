@@ -68,7 +68,7 @@ public class PageBuilder{
     /* Handle different cases */
     switch(req){
       case "?" :
-        os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+        os.write("<h1>Bad Request</h1>".getBytes());
         break;
       default :
         String[] paths = req.split("/");
@@ -98,7 +98,7 @@ public class PageBuilder{
                 break;
               default :
                 genHeader(os, paths[1]);
-                os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+                os.write("<h1>Bad Request</h1>".getBytes());
                 genFooter(os);
                 break;
             }
@@ -123,13 +123,13 @@ public class PageBuilder{
                 genPage(os, paths[1], page);
                 break;
               default :
-                os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+                os.write("<h1>Bad Request</h1>".getBytes());
                 break;
             }
             genFooter(os);
             break;
           default :
-            os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+            os.write("<h1>Bad Request</h1>".getBytes());
             break;
         }
         break;
@@ -149,7 +149,7 @@ public class PageBuilder{
     /* Small amount of CSS */
     os.write("<style>pre{background:#eee;border-left:4px solid #222;padding:4px;}</style>".getBytes());
     /* Header and core formatting */
-    os.write("<tt><h1>Git Page</h1>".getBytes());
+    os.write("<h1>Git Page</h1>".getBytes());
     /* Core navigation */
     os.write("<a href=\"/\">Home</a>".getBytes());
     os.write("<hr>".getBytes());
@@ -170,7 +170,6 @@ public class PageBuilder{
    * @param os The output stream to be written to.
    **/
   private void genFooter(OutputStream os) throws IOException{
-    os.write("</tt>".getBytes());
   }
 
   /**
@@ -199,7 +198,7 @@ public class PageBuilder{
   private void genOverview(OutputStream os, String proj) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj)){
-      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      os.write("<h1>Bad Request</h1>".getBytes());
       return;
     }
     /* Find the overview page */
@@ -284,7 +283,7 @@ public class PageBuilder{
   private void genPage(OutputStream os, String proj, int page) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj) || page < 0){
-      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      os.write("<h1>Bad Request</h1>".getBytes());
       return;
     }
     /* Generate pages navigation */
@@ -340,7 +339,7 @@ public class PageBuilder{
       commit == null           ||
       !Git.validCommit(commit)
     ){
-      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      os.write("<h1>Bad Request</h1>".getBytes());
       return;
     }
     /* Generate pages navigation */
@@ -350,7 +349,7 @@ public class PageBuilder{
     String[] details = Git.gitCommit(repos.get(proj), commit);
     /* Make sure they were generated! */
     if(details.length != 11){
-      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      os.write("<h1>Bad Request</h1>".getBytes());
       return;
     }
     os.write("<table>".getBytes());
@@ -385,7 +384,7 @@ public class PageBuilder{
       commit == null           ||
       !Git.validCommit(commit)
     ){
-      os.write("<tt><h1>Bad Request</h1></tt>".getBytes());
+      os.write("<h1>Bad Request</h1>".getBytes());
       return;
     }
     /* Generate pages navigation */
