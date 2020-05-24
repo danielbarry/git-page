@@ -28,6 +28,7 @@ public class PageBuilder{
 
   private HashMap<String, File> repos;
   private String url;
+  private byte[] pageHeader;
 
   /**
    * PageBuilder()
@@ -55,6 +56,48 @@ public class PageBuilder{
       }
     }
     this.url = url;
+    /* Pre-process the page header */
+    pageHeader = (
+      /* Small amount of CSS */
+      "<style>" +
+        /* Make the table the width of the display */
+        "table{width:100%;}" +
+        /* Make rows more easily distinguishable */
+        "tr:nth-child(even){background-color: #EEE;}" +
+        "nav{" +
+          /* Navigation should be easy to recognise */
+          "background-color:#CCC;" +
+          /* Flow the navigation bar correctly */
+          "overflow:hidden;" +
+          /* Allow "buttons" some space */
+          "padding:8px;" +
+        "}" +
+        /* Make window specific bar a different colour */
+        "nav.sub{background-color:#EEE;}" +
+        "nav>a{" +
+          /* "Buttons" should take up more space */
+          "padding:8px;" +
+          /* Remove hyperlink markup */
+          "text-decoration:none;" +
+        "}" +
+        /* "Buttons" should hover to show they are interactive */
+        "nav>a:hover{background-color:#AAA;}" +
+        "pre{" +
+          /* Code block should be visibly different */
+          "background:#eee;" +
+          /* Add a black bar to the left to really stand out */
+          "border-left:4px solid #222;" +
+          /* Code text shouldn't sit at the edges */
+          "padding:4px;" +
+        "}" +
+      "</style>" +
+      /* Header and core formatting */
+      "<h1>Git Page</h1>" +
+      /* Core navigation */
+      "<nav>" +
+      "<a href=\"/\">Home</a>" +
+      "</nav>"
+    ).getBytes();
   }
 
   /**
@@ -147,13 +190,8 @@ public class PageBuilder{
    * navigation is displayed.
    **/
   private void genHeader(OutputStream os, String proj) throws IOException{
-    /* Small amount of CSS */
-    os.write("<style>pre{background:#eee;border-left:4px solid #222;padding:4px;}</style>".getBytes());
-    /* Header and core formatting */
-    os.write("<h1>Git Page</h1>".getBytes());
-    /* Core navigation */
-    os.write("<a href=\"/\">Home</a>".getBytes());
-    os.write("<hr>".getBytes());
+    /* Spit out pre-processed header */
+    os.write(pageHeader);
     /* Project navigation if required */
     if(proj != null && repos.containsKey(proj)){
       os.write(("<a href=\"/" + proj + "\">" + proj + "</a> ").getBytes());
