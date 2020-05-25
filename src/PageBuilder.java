@@ -24,6 +24,8 @@ public class PageBuilder{
 
   private static final String[] INDEX_NAMES = new String[]{ "readme", "index" };
   private static final String[] INDEX_EXTS = new String[]{ "md", "markdown", "txt", "htm", "html" };
+  private static final byte[] HTTP_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n".getBytes();
+  private static final byte[] XML_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: application/xml\r\n\r\n".getBytes();
   private static final byte[] INDEX_BAD = "<h1>Bad Request</h1>".getBytes();
   private static final String REQ_PRE = "/git";
 
@@ -558,11 +560,13 @@ public class PageBuilder{
       /* TODO: Not clear what to write if feed cannot be generated. */
       return;
     }
+    /* Send the header early */
+    os.write(XML_HEAD);
     /* Generate RSS headers */
     os.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><rss version=\"2.0\"><channel>".getBytes());
     os.write(("<title>" + proj + "</title>").getBytes());
     os.write(("<description>RSS feed for commits to " + proj + ".</description>").getBytes());
-    os.write(("<link>" + url + "/" + proj + "</link>").getBytes());
+    os.write(("<link>" + url + pre + "/" + proj + "</link>").getBytes());
     /* TODO: Not sure if tab character is a safe delimiter. */
     String[] logs = Git.gitLog(repos.get(proj), 0, 16, "\t");
     for(int x = 0; x < logs.length; x++){

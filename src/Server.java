@@ -15,7 +15,6 @@ public class Server extends Thread{
   private static final int HTTP_HEAD_SIZE = 256;
   private static final int HTTP_MAX_INPUT = 65536;
   private static final int HTTP_MAX_WAIT = 5000;
-  private static final byte[] HTTP_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n".getBytes();
 
   private ServerSocket ss;
   private Socket s;
@@ -88,8 +87,6 @@ public class Server extends Thread{
       /* Get the streams we'll re-use */
       is = s.getInputStream();
       os = s.getOutputStream();
-      /* Send the header early */
-      os.write(HTTP_HEAD);
       /* Get the request */
       byte[] buff = new byte[HTTP_HEAD_SIZE];
       is.read(buff);
