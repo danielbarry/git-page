@@ -112,6 +112,56 @@ public class Git{
   }
 
   /**
+   * gitFetch()
+   *
+   * Fetch changes from the default origin repository.
+   *
+   * @param dir The directory of the repository.
+   * @return The raw output lines of the fetch.
+   **/
+  public static String gitFetch(File dir){
+    /* TODO: Make sure this operation is only run by authorized classes. */
+    byte[] buff = exec(
+      dir,
+      new String[]{
+        "git",
+        "fetch"
+      }
+    );
+    if(buff != null){
+      return new String(buff);
+    }else{
+      Main.warn("Command failed to run");
+      return new String();
+    }
+  }
+
+  /**
+   * gitPull()
+   *
+   * Pull changes from the default origin repository.
+   *
+   * @param dir The directory of the repository.
+   * @return The raw output lines of the pull.
+   **/
+  public static String gitPull(File dir){
+    /* TODO: Make sure this operation is only run by authorized classes. */
+    byte[] buff = exec(
+      dir,
+      new String[]{
+        "git",
+        "pull"
+      }
+    );
+    if(buff != null){
+      return new String(buff);
+    }else{
+      Main.warn("Command failed to run");
+      return new String();
+    }
+  }
+
+  /**
    * exec()
    *
    * Execute a give command and return the output. Note that this command will
