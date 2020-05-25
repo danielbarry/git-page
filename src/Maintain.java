@@ -10,6 +10,8 @@ import java.util.HashMap;
  * the latest changes.
  **/
 public class Maintain extends Thread{
+  private static final int REPO_LOOP_MILLIS = 1000 * 600;
+
   private HashMap<String, File> repos;
 
   /**
@@ -45,6 +47,33 @@ public class Maintain extends Thread{
    **/
   @Override
   public void run(){
-    /* TODO: Poll the repos. */
+    /* Infinite loop */
+    for(;;){
+      Main.log("Checking repos...");
+      /* Pre-compute timeout value */
+      long loopTimeout = System.currentTimeMillis() + REPO_LOOP_MILLIS;
+      /* Check each repository */
+      for(String key : repos.keySet()){
+        try{
+          /* Check the repo for remote changes */
+          if(Git.gitFetch(repos.get(key)).length() > 0){
+            /* Pull changes if there are some */
+            Git.gitPull(repos.get(key));
+          }
+        }catch(Exception e){
+          Main.warn("Error checking repository '" + key + "'");
+        }
+      }
+      /* Wait until we can go again */
+      long loopRemain = loopTimeout - System.currentTimeMillis();
+      if(loopRemain > 0){
+        try{
+          Main.log("Waiting " + (loopRemain / 1000) + "s...");
+          Thread.sleep(loopRemain);
+        }catch(InterruptedException e){
+          /* Do nothing */
+        }
+      }
+    }
   }
 }
