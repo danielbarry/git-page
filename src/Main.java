@@ -8,6 +8,7 @@ import java.util.ArrayList;
  * Decide on the execution of the program.
  **/
 public class Main{
+  private boolean maintain;
   private ArrayList<String> repos;
   private int port;
   private String url;
@@ -33,6 +34,7 @@ public class Main{
    **/
   public Main(String[] args){
     /* Initialise local variables */
+    maintain = false;
     repos = new ArrayList<String>();
     port = -1;
     url = "http://127.0.0.1";
@@ -42,6 +44,10 @@ public class Main{
         case "-h" :
         case "--help" :
           x = help(args, x);
+          break;
+        case "-m" :
+        case "--maintain" :
+          x = maintain(args, x);
           break;
         case "-r" :
         case "--repo" :
@@ -62,6 +68,11 @@ public class Main{
     }
     /* Check if we should run a server */
     if(port >= 0){
+      /* Check if maintenance needed */
+      if(maintain){
+        log("Starting maintenance loop");
+        (new Maintain(repos.toArray(new String[repos.size()]))).start();
+      }
       log("Starting the server");
       (new Server(port, url, repos.toArray(new String[repos.size()]))).loop();
     }else{
@@ -83,13 +94,28 @@ public class Main{
     System.out.println("");
     System.out.println("  OPTions");
     System.out.println("");
-    System.out.println("    -h  --help    Display this help");
-    System.out.println("    -r  --repo    Set a repo to be managed");
-    System.out.println("                    <STR> Path of repository");
-    System.out.println("    -s  --server  Run the server");
-    System.out.println("                    <INT> The port number");
-    System.out.println("    -u  --url     The URL to be used in the RSS");
+    System.out.println("    -h  --help      Display this help");
+    System.out.println("    -m  --maintain  Poll repositories for changes");
+    System.out.println("    -r  --repo      Set a repo to be managed");
+    System.out.println("                      <STR> Path of repository");
+    System.out.println("    -s  --server    Run the server");
+    System.out.println("                      <INT> The port number");
+    System.out.println("    -u  --url       The URL to be used in the RSS");
     System.exit(0);
+    return x;
+  }
+
+  /**
+   * maintain()
+   *
+   * Flag to maintain all of the repositories referenced.
+   *
+   * @param args The command line arguments.
+   * @param x The command line offset.
+   * @return The new command line offset.
+   **/
+  private int maintain(String[] args, int x){
+    maintain = true;
     return x;
   }
 
