@@ -25,6 +25,7 @@ public class PageBuilder{
   private static final String[] INDEX_NAMES = new String[]{ "readme", "index" };
   private static final String[] INDEX_EXTS = new String[]{ "md", "markdown", "txt", "htm", "html" };
   private static final byte[] INDEX_BAD = "<h1>Bad Request</h1>".getBytes();
+  private static final String REQ_PRE = "/git";
 
   private HashMap<String, File> repos;
   private String url;
@@ -95,7 +96,7 @@ public class PageBuilder{
       "<h1>Git Page</h1>" +
       /* Core navigation */
       "<nav>" +
-      "<a href=\"/\">Home</a>" +
+      "<a href=\"" + REQ_PRE + "/\">Home</a>" +
       "</nav>"
     ).getBytes();
   }
@@ -111,52 +112,61 @@ public class PageBuilder{
   public void generate(OutputStream os, String req) throws IOException{
     /* Store entry timestamp */
     long start = System.nanoTime();
+    /* Store pre-string for this request */
+    String pre = REQ_PRE;
     /* Handle different cases */
     switch(req){
       case "?" :
         os.write(INDEX_BAD);
         break;
       default :
+        /* Check for special string "/git" */
+        if(req.startsWith(pre)){
+          req = req.substring(pre.length());
+        }else{
+          pre = "";
+        }
         String[] paths = req.split("/");
+        /* Process the request */
         switch(paths.length){
           case 0 :
           case 1 :
-            genHeader(os, null);
-            genRoot(os);
-            genFooter(os, start);
+            genHeader(os, pre, null);
+            genRoot(os, pre);
+            genFooter(os, pre, start);
             break;
           case 2 :
-            genHeader(os, paths[1]);
-            genOverview(os, paths[1]);
-            genFooter(os, start);
+            genHeader(os, pre, paths[1]);
+            genOverview(os, pre, paths[1]);
+            genFooter(os, pre, start);
             break;
           case 3 :
             switch(paths[2]){
               case "commit" :
               case "diff" :
               case "page" :
-                genHeader(os, paths[1]);
-                genPage(os, paths[1], 0);
-                genFooter(os, start);
+                genHeader(os, pre, paths[1]);
+                genPage(os, pre, paths[1], 0);
+                genFooter(os, pre, start);
                 break;
               case "rss" :
-                genRSS(os, paths[1]);
+                genRSS(os, pre, paths[1]);
                 break;
               default :
-                genHeader(os, paths[1]);
+                genHeader(os, pre, paths[1]);
                 os.write(INDEX_BAD);
-                genFooter(os, start);
+                genFooter(os, pre, start);
                 break;
             }
             break;
           case 4 :
-            genHeader(os, paths[1]);
+            genHeader(os, pre, paths[1]);
             switch(paths[2]){
               case "commit" :
-                genCommit(os, paths[1], paths[3]);
+                genCommit(os, pre, paths[1], paths[3]);
                 break;
               case "diff" :
-                genDiff(os, paths[1], paths[3]);
+                genDiff(os, pre, paths[1], paths[3]);
                 break;
               case "page" :
                 int page = 0;
@@ -166,16 +176,18 @@ public class PageBuilder{
                   /* Fail silently */
                   page = 0;
                 }
-                genPage(os, paths[1], page);
+                genPage(os, pre, paths[1], page);
                 break;
               default :
                 os.write(INDEX_BAD);
                 break;
             }
-            genFooter(os, start);
+            genFooter(os, pre, start);
             break;
           default :
+            genHeader(os, pre, paths[1]);
             os.write(INDEX_BAD);
+            genFooter(os, pre, start);
             break;
         }
         break;
@@ -188,18 +200,21 @@ public class PageBuilder{
    * Generate a header for the page.
    *
    * @param os The output stream to be written to.
+   * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon. If NULL, no project
    * navigation is displayed.
    **/
-  private void genHeader(OutputStream os, String proj) throws IOException{
+  private void genHeader(OutputStream os, String pre, String proj) throws IOException{
+    /* Send the header early */
+    os.write(HTTP_HEAD);
     /* Spit out pre-processed header */
     os.write(pageHeader);
     /* Project navigation if required */
     if(proj != null && repos.containsKey(proj)){
       os.write("<nav>".getBytes());
-      os.write(("<a href=\"/" + proj + "\">" + proj + "</a> ").getBytes());
-      os.write(("<a href=\"/" + proj + "/commit\">Commits</a> ").getBytes());
-      os.write(("<a href=\"/" + proj + "/rss\">RSS</a>").getBytes());
+      os.write(("<a href=\"" + pre + "/" + proj + "\">" + proj + "</a> ").getBytes());
+      os.write(("<a href=\"" + pre + "/" + proj + "/commit\">Commits</a> ").getBytes());
+      os.write(("<a href=\"" + pre + "/" + proj + "/rss\">RSS</a>").getBytes());
       os.write("</nav>".getBytes());
     }
   }
@@ -210,9 +225,10 @@ public class PageBuilder{
    * Generate a footer for the page.
    *
    * @param os The output stream to be written to.
+   * @param pre Set the pre-string for any links.
    * @param ts The timestamp processing began.
    **/
-  private void genFooter(OutputStream os, long ts) throws IOException{
+  private void genFooter(OutputStream os, String pre, long ts) throws IOException{
     os.write((
       "<hr>Generated in " +
       ((System.nanoTime() - ts) / 1000000) +
@@ -226,11 +242,12 @@ public class PageBuilder{
    * Generate a root list of projects.
    *
    * @param os The output stream to be written to.
+   * @param pre Set the pre-string for any links.
    **/
-  private void genRoot(OutputStream os) throws IOException{
+  private void genRoot(OutputStream os, String pre) throws IOException{
     os.write("<table>".getBytes());
     for(String key : repos.keySet()){
-      os.write(("<tr><td><a href=\"/" + key + "\">" + key + "</a></li></td></tr>").getBytes());
+      os.write(("<tr><td><a href=\"" + pre + "/" + key + "\">" + key + "</a></li></td></tr>").getBytes());
     }
     os.write("</table>".getBytes());
   }
@@ -241,9 +258,10 @@ public class PageBuilder{
    * Generate the repository overview page.
    *
    * @param os The output stream to be written to.
+   * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
    **/
-  private void genOverview(OutputStream os, String proj) throws IOException{
+  private void genOverview(OutputStream os, String pre, String proj) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj)){
       os.write(INDEX_BAD);
@@ -325,10 +343,11 @@ public class PageBuilder{
    * Generate a given page for a given project, otherwise display an error.
    *
    * @param os The output stream to be written to.
+   * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
    * @param page The page number of commits to display.
    **/
-  private void genPage(OutputStream os, String proj, int page) throws IOException{
+  private void genPage(OutputStream os, String pre, String proj, int page) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj) || page < 0){
       os.write(INDEX_BAD);
@@ -337,10 +356,10 @@ public class PageBuilder{
     /* Generate pages navigation */
     os.write("<nav class=\"sub\">".getBytes());
     if(page > 0){
-      os.write(("<a href=\"/" + proj + "/page/" + (page - 1) + "\">Prev</a> < ").getBytes());
+      os.write(("<a href=\"" + pre + "/" + proj + "/page/" + (page - 1) + "\">Prev</a> < ").getBytes());
     }
-    os.write(("<a href=\"/" + proj + "/page/" + page + "\">" + page + "</a> > ").getBytes());
-    os.write(("<a href=\"/" + proj + "/page/" + (page + 1) + "\">Next</a>").getBytes());
+    os.write(("<a href=\"" + pre + "/" + proj + "/page/" + page + "\">" + page + "</a> > ").getBytes());
+    os.write(("<a href=\"" + pre + "/" + proj + "/page/" + (page + 1) + "\">Next</a>").getBytes());
     os.write("</nav>".getBytes());
     /* Fill out table */
     /* TODO: Not sure if tab character is a safe delimiter. */
@@ -356,7 +375,7 @@ public class PageBuilder{
         /* Write the entry */
         os.write((
           "<tr>" +
-            "<td><a href=\"/" + proj + "/commit/" + log[0] + "\">" + log[0] + "</td>" +
+            "<td><a href=\"" + pre + "/" + proj + "/commit/" + log[0] + "\">" + log[0] + "</td>" +
             "<td>" + sanitize(log[1]) + "</td>" +
             "<td>" + sanitize(log[2]) + "</td>" +
             "<td>" + sanitize(log[3]) + "</td>" +
@@ -377,10 +396,11 @@ public class PageBuilder{
    * error.
    *
    * @param os The output stream to be written to.
+   * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
    * @param commit The commit to display a summary for.
    **/
-  private void genCommit(OutputStream os, String proj, String commit) throws IOException{
+  private void genCommit(OutputStream os, String pre, String proj, String commit) throws IOException{
     /* Make sure the request params are valid */
     if(
       proj == null             ||
@@ -393,8 +413,8 @@ public class PageBuilder{
     }
     /* Generate pages navigation */
     os.write("<nav class=\"sub\">".getBytes());
-    os.write(("<a href=\"/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
-    os.write(("<a href=\"/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
+    os.write(("<a href=\"" + pre + "/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
+    os.write(("<a href=\"" + pre + "/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
     os.write("</nav>".getBytes());
     /* Generate details */
     String[] details = Git.gitCommit(repos.get(proj), commit);
@@ -424,10 +444,11 @@ public class PageBuilder{
    * Generate the code difference for a given commit.
    *
    * @param os The output stream to be written to.
+   * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
    * @param commit The commit to display a summary for.
    **/
-  private void genDiff(OutputStream os, String proj, String commit) throws IOException{
+  private void genDiff(OutputStream os, String pre, String proj, String commit) throws IOException{
     /* Make sure the request params are valid */
     if(
       proj == null             ||
@@ -440,8 +461,8 @@ public class PageBuilder{
     }
     /* Generate pages navigation */
     os.write("<nav class=\"sub\">".getBytes());
-    os.write(("<a href=\"/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
-    os.write(("<a href=\"/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
+    os.write(("<a href=\"" + pre + "/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
+    os.write(("<a href=\"" + pre + "/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
     os.write("</nav>".getBytes());
     /* Generate details */
     String diff = Git.gitDiff(repos.get(proj), commit);
@@ -528,9 +549,10 @@ public class PageBuilder{
    * Generate an RSS feed for a given project.
    *
    * @param os The output stream to be written to.
+   * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
    **/
-  private void genRSS(OutputStream os, String proj) throws IOException{
+  private void genRSS(OutputStream os, String pre, String proj) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj)){
       /* TODO: Not clear what to write if feed cannot be generated. */
@@ -555,7 +577,7 @@ public class PageBuilder{
         os.write((
           "<item>" +
             "<title>" + sanitize(title) + "</title>" +
-            "<guid>" + log[0] + "</guid>" +
+            "<guid>" + url + pre + "/" + proj + "/commit/" + log[0] + "</guid>" +
             "<description>" +
               log[0] + " " +
               sanitize(log[1]) + " " +
@@ -563,7 +585,7 @@ public class PageBuilder{
               sanitize(log[3]) + " " +
               sanitize(log[4]) + " " +
             "</description>" +
-            "<link>" + url + "/" + proj + "/commit/" + log[0] + "</link>" +
+            "<link>" + url + pre + "/" + proj + "/commit/" + log[0] + "</link>" +
           "</item>"
         ).getBytes());
       }else{
