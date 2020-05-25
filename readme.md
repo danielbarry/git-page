@@ -18,11 +18,10 @@ offer simplicity, control and RSS feeds about updates.
 * Relatively safe parsing of Git data
 * Cuts off long responses
 * RSS feeds
+* Auto fetching/pulling remote changes from origin
 
 ## Future Planned Features
 
-* Auto-fetch/pull latest changes to the repository being watched - This would
-likely be achieved by polling the target Git server.
 * Display (text-based) files - Attempt to display human read-able files in the
 browser, otherwise offer the ability to view them raw.
 * Ability to download a snapshot of the repository - This would likely be
