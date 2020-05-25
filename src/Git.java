@@ -32,7 +32,7 @@ public class Git{
         "--all",
         "--skip=" + start,
         "--max-count=" + count,
-        "--pretty=format:%h" + sep + "%D" + sep + "%cI" + sep + "%cl" + sep + "%s"
+        "--pretty=format:%h" + sep + "%D" + sep + "%cI" + sep + "%cn" + sep + "%s"
       }
     );
     if(buff != null){
