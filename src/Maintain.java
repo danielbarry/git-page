@@ -56,11 +56,12 @@ public class Maintain extends Thread{
       for(String key : repos.keySet()){
         try{
           /* Check the repo for remote changes */
-          if(Git.gitFetch(repos.get(key)).length() > 0){
+          Git.gitFetch(repos.get(key)); // TODO
+//          if(Git.gitFetch(repos.get(key)).length() > 0){
             Main.log("Pulling changes for '" + key + "'");
             /* Pull changes if there are some */
             Git.gitPull(repos.get(key));
-          }
+//          }
         }catch(Exception e){
           Main.warn("Error checking repository '" + key + "'");
         }
