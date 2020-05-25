@@ -555,6 +555,7 @@ public class PageBuilder{
         os.write((
           "<item>" +
             "<title>" + sanitize(title) + "</title>" +
+            "<guid>" + log[0] + "</guid>" +
             "<description>" +
               log[0] + " " +
               sanitize(log[1]) + " " +
