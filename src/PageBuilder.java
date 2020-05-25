@@ -109,6 +109,8 @@ public class PageBuilder{
    * @param req The request being made of the page builder.
    **/
   public void generate(OutputStream os, String req) throws IOException{
+    /* Store entry timestamp */
+    long start = System.nanoTime();
     /* Handle different cases */
     switch(req){
       case "?" :
@@ -121,12 +123,12 @@ public class PageBuilder{
           case 1 :
             genHeader(os, null);
             genRoot(os);
-            genFooter(os);
+            genFooter(os, start);
             break;
           case 2 :
             genHeader(os, paths[1]);
             genOverview(os, paths[1]);
-            genFooter(os);
+            genFooter(os, start);
             break;
           case 3 :
             switch(paths[2]){
@@ -135,7 +137,7 @@ public class PageBuilder{
               case "page" :
                 genHeader(os, paths[1]);
                 genPage(os, paths[1], 0);
-                genFooter(os);
+                genFooter(os, start);
                 break;
               case "rss" :
                 genRSS(os, paths[1]);
@@ -143,7 +145,7 @@ public class PageBuilder{
               default :
                 genHeader(os, paths[1]);
                 os.write(INDEX_BAD);
-                genFooter(os);
+                genFooter(os, start);
                 break;
             }
             break;
@@ -170,7 +172,7 @@ public class PageBuilder{
                 os.write(INDEX_BAD);
                 break;
             }
-            genFooter(os);
+            genFooter(os, start);
             break;
           default :
             os.write(INDEX_BAD);
@@ -208,9 +210,14 @@ public class PageBuilder{
    * Generate a footer for the page.
    *
    * @param os The output stream to be written to.
+   * @param ts The timestamp processing began.
    **/
-  private void genFooter(OutputStream os) throws IOException{
-    /* Do nothing */
+  private void genFooter(OutputStream os, long ts) throws IOException{
+    os.write((
+      "<hr>Generated in " +
+      ((System.nanoTime() - ts) / 1000000) +
+      "ms"
+    ).getBytes());
   }
 
   /**
