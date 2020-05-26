@@ -12,6 +12,7 @@ public class JSON{
   private static final int TYPE_ARR = 2;
   private static final int TYPE_STR = 3;
 
+  private int rawLen;
   private int type;
   private String key;
   private String val;
@@ -23,119 +24,149 @@ public class JSON{
    * Parse the JSON string and generate the relevant children objects.
    *
    * @param json The valid JSON input String.
+   * @param offset The offset to start parsing from in the String.
    **/
-  public JSON(String json){
+  private JSON(String json, int offset) throws Exception{
     /* Setup internal variables */
-    type = 0;
+    rawLen = 0;
+    type = TYPE_STR;
     key = null;
     val = null;
     childs = null;
-    /* Find the type of this object */
-    int x = 0;
-    for(; type <= 0 && x < json.length(); x++){
-      char c = json.charAt(x);
-      /* Find an indicator character */
-      switch(c){
-        case '{' :
-          type = TYPE_OBJ;
-          break;
-        case '[' :
-          type = TYPE_ARR;
-          break;
-        case '"' :
-          type = TYPE_STR;
-          break;
-      }
-    }
-    /* Perform parsing */
-    boolean keyFill = true;
-    boolean escape = false;
+    /* Parse for object type */
     boolean string = false;
-    for(; x < json.length(); x++){
+    boolean escape = false;
+    boolean keyFill = true;
+    for(int x = offset; x < json.length(); x++){
       char c = json.charAt(x);
-      /* Check for previous escape */
-      if(escape){
-        escape = false;
-        switch(c){
-          case 'b' :
-            c = '\b';
-            break;
-          case 'f' :
-            c = '\f';
-            break;
-          case 'n' :
-            c = '\n';
-            break;
-          case 'r' :
-            c = '\r';
-            break;
-          case 't' :
-            c = '\t';
-            break;
-          case '"' :
-            c = '"';
-            break;
-          case '\\' :
-            c = '\\';
-            /* NOTE: Special case for double slash. */
-            escape = true;
-            break;
-          default :
-            /* TODO: Invalid escape sequence. */
-            break;
-        }
-      }
-      /* Parse object indicators only if not processing a string */
+      /* Parse JSON structure */
       if(!string){
         switch(c){
           case '{' :
-            /* TODO: Child object found, add and skip the size of it. */
+          case '[' :
+            /* Set type if not set */
+            if(type == TYPE_STR){
+              /* Check special case root object */
+              if(offset > 0){
+                type = c == '{' ? TYPE_OBJ : TYPE_ARR;
+              }else{
+                offset = 1;
+              }
+            /* Handle this child object */
+            }else{
+              if(childs == null){
+                childs = new ArrayList<JSON>();
+              }
+              JSON child = new JSON(json, x);
+              childs.add(child);
+              x += child.getRawLen();
+            }
             break;
           case '}' :
-            /* TODO: End of our object found (if we're an object). */
-            break;
-          case '[' :
-            /* TODO: Child array found, add and skip the size of it. */
-            break;
           case ']' :
-            /* TODO: End of our array (if we're an array). */
+          case ',' :
+            /* End of this object */
+            rawLen = x - offset;
+            return;
+          case '"' :
+            if(type == TYPE_STR){
+              string = !string;
+            }else{
+              if(childs == null){
+                childs = new ArrayList<JSON>();
+              }
+              JSON child = new JSON(json, x);
+              childs.add(child);
+              x += child.getRawLen();
+            }
+            break;
+          case ':' :
+            keyFill = false;
             break;
         }
-      /* Parse string internals */
+      /* Parse JSON string */
       }else{
-        switch(c){
-          case '"' :
-            /* Invert in-string status */
+        /* If not an escape character */
+        if(c != '\\' || escape){
+          /* Flip string state if not escaping */
+          if(c == '"' && !escape){
             string = !string;
-            /* Switch filling case if end of string found */
-            if(!string){
-              keyFill = !keyFill;
+          }
+          /* Pre-escape if needed */
+          if(escape){
+            switch(c){
+              case 'b' :
+                c = '\b';
+                break;
+              case 'f' :
+                c = '\f';
+                break;
+              case 'n' :
+                c = '\n';
+                break;
+              case 'r' :
+                c = '\r';
+                break;
+              case 't' :
+                c = '\t';
+                break;
+              case '"' :
+                c = '"';
+                break;
+              case '\\' :
+                c = '\\';
+                break;
+              default :
+                throw new Exception("Invalid escape sequence");
             }
-            break;
-          case '\\' :
-            /* NOTE: If not already in an escape special case. */
-            if(!escape){
-              escape = true;
-              break;
-            }else{
-              /* Turn off escape and fall through to plain text */
-              escape = false;
-            }
-          default :
-            /* Handle in-string */
-            if(string){
-              /* Check if filling key */
-              if(keyFill){
+            escape = false;
+          }
+          /* Are we still in the string? */
+          if(string){
+            /* Where are we putting this? */
+            if(keyFill){
+              if(key != null){
                 key += c;
-              /* Check if filling value */
               }else{
+                key = "" + c;
+              }
+            }else{
+              if(val != null){
                 val += c;
+              }else{
+                val = "" + c;
               }
             }
-            break;
+          }
+        /* Handle escape case */
+        }else{
+          escape = true;
         }
       }
     }
+  }
+
+  /**
+   * getRawLen()
+   *
+   * Get the raw parser length of what was parsed. This is intended to be used
+   * by the constructor during parsing.
+   *
+   * @return The raw parser length in number of bytes.
+   **/
+  public int getRawLen(){
+    return rawLen;
+  }
+
+  /**
+   * JSON()
+   *
+   * Parse the JSON string and generate the relevant children objects.
+   *
+   * @param json The valid JSON input String.
+   **/
+  public JSON(String json) throws Exception{
+    this(json, 0);
   }
 
   /**
@@ -237,24 +268,22 @@ public class JSON{
   public String toString(){
     switch(type){
       case TYPE_OBJ :
-        String o = "{";
+        String o = key != null ? "\"" + key + "\":{" : "{";
         if(childs != null){
           for(int x = 0; x < childs.size(); x++){
-            o += childs.get(x).toString();
-            if(x < childs.size() - 1){
-              o += ',';
-            }
+            JSON c = childs.get(x);
+            o += c.toString();
+            o += x < childs.size() - 1 ? "," : "";
           }
         }
         return o + '}';
       case TYPE_ARR :
-        String a = "[";
+        String a = key != null ? "\"" + key + "\":[" : "[";
         if(childs != null){
           for(int x = 0; x < childs.size(); x++){
-            a += childs.get(x).toString();
-            if(x < childs.size() - 1){
-              a += ',';
-            }
+            JSON c = childs.get(x);
+            a += c.toString();
+            a += x < childs.size() - 1 ? "," : "";
           }
         }
         return a + ']';
