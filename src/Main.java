@@ -57,6 +57,10 @@ public class Main{
         case "--server" :
           x = server(args, x);
           break;
+        case "-t" :
+        case "--test" :
+          x = test(args, x);
+          break;
         case "-u" :
         case "--url" :
           x = url(args, x);
@@ -100,6 +104,7 @@ public class Main{
     System.out.println("                      <STR> Path of repository");
     System.out.println("    -s  --server    Run the server");
     System.out.println("                      <INT> The port number");
+    System.out.println("    -t  --test      Perform internal tests");
     System.out.println("    -u  --url       The URL to be used in the RSS");
     System.exit(0);
     return x;
@@ -156,6 +161,21 @@ public class Main{
     }else{
       err("Not enough params to set server port");
     }
+    return x;
+  }
+
+  /**
+   * test()
+   *
+   * Perform tests and then exit.
+   *
+   * @param args The command line arguments.
+   * @param x The command line offset.
+   * @return The new command line offset.
+   **/
+  private int test(String[] args, int x){
+    JSON.test();
+    System.exit(0);
     return x;
   }
 
