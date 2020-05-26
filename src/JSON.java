@@ -257,6 +257,27 @@ public class JSON{
   }
 
   /**
+   * get()
+   *
+   * Get a child element of this JSON object by key. NOTE: Only objects and
+   * arrays can have child elements.
+   *
+   * @param key The key to be used to search for the element.
+   * @return The JSON object at the given location, otherwise NULL.
+   **/
+  public JSON get(String key){
+    if(childs != null && key != null){
+      for(int x = 0; x < childs.size(); x++){
+        JSON c = childs.get(x);
+        if(c != null && c.getKey() != null && c.getKey().equals(key)){
+          return c;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
    * toString()
    *
    * Convert this object and all child objects to a printable String.
