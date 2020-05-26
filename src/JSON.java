@@ -322,4 +322,92 @@ public class JSON{
         return "";
     }
   }
+
+  /**
+   * assurt()
+   *
+   * A very simple assertion method for testing that the JSON parser isn't
+   * regressing.
+   *
+   * @param r The result to test.
+   * @return Pass through for the result value.
+   **/
+  private static boolean assurt(boolean r){
+    System.out.println(
+      "[" + (r ? "PASS" : "FAIL") + "] " +
+      Thread.currentThread().getStackTrace()[2].getClassName() + "->" +
+      Thread.currentThread().getStackTrace()[2].getMethodName() + "::" +
+      Thread.currentThread().getStackTrace()[2].getLineNumber()
+    );
+    return r;
+  }
+
+  /**
+   * test()
+   *
+   * Test that the parser works as expected. The result of each test and a
+   * summary is printed to the standard out, as well as a boolean indicating
+   * test success.
+   *
+   * @return The result of performing the tests, true if success, otherwise
+   * false.
+   **/
+  public static boolean test(){
+    /* Setup variables */
+    String[] test = new String[]{
+      "{}",
+       "",
+      "{\"test\"}",
+       "\"test\"",
+      "{\"test\":\"123\"}",
+       "\"test\":\"123\"",
+      "{\"test\":{}}",
+       "\"test\":{}",
+      "{\"test\":[]}",
+       "\"test\":[]",
+      "{\"test\":{\"arg-a\",\"arg-b\"}}",
+       "\"test\":{\"arg-a\",\"arg-b\"}",
+      "{\"test\":[\"arg-a\",\"arg-b\"]}",
+       "\"test\":[\"arg-a\",\"arg-b\"]",
+      "{\"test\":{\"arg-a\":\"123\",\"arg-b\":\"456\"}}",
+       "\"test\":{\"arg-a\":\"123\",\"arg-b\":\"456\"}",
+      "{\"test\":[\"arg-a\":\"123\",\"arg-b\":\"456\"]}",
+       "\"test\":[\"arg-a\":\"123\",\"arg-b\":\"456\"]",
+      "{\"test\":{{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}}}",
+       "\"test\":{{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}}",
+      "{\"test\":[{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}]}",
+       "\"test\":[{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}]"
+    };
+    boolean r = true;
+    /* Run parser tests */
+    for(int x = 0; x < test.length; x += 2){
+      try{
+        boolean a = assurt(new JSON(test[x]).toString().equals(test[x + 1]));
+        if(!a){
+          System.out.println("  '" + new JSON(test[x]).toString() + "' !=");
+          System.out.println("  '" + test[x + 1] + "'");
+        }
+        r &= a;
+      }catch(Exception e){
+        System.out.println(">> Major Screw Up <<");
+        e.printStackTrace();
+        r = false;
+      }
+    }
+    /* Run getter tests */
+    try{
+      r &= assurt(new JSON("{\"test\":[{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}]}")
+        .get(0).toString().equals("{\"arg-a\":\"123\"}"));
+      r &= assurt(new JSON("{\"test\":[\"arg-a\":\"123\",\"arg-b\":\"456\"]}")
+        .get("arg-b").toString().equals("\"arg-b\":\"456\""));
+    }catch(Exception e){
+      System.out.println(">> Major Screw Up <<");
+      e.printStackTrace();
+      r = false;
+    }
+    /* Print result */
+    System.out.println("");
+    System.out.println("  Tests " + (r ? "PASSED" : "FAILED"));
+    return r;
+  }
 }
