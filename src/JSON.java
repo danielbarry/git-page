@@ -290,9 +290,9 @@ public class JSON{
       case TYPE_STR :
         if(key != null && val != null){
           return '\"' + key + "\":\"" + val + '\"';
-        }else if(val == null){
+        }else if(key != null){
           return '\"' + key + '\"';
-        }else if(key == null){
+        }else if(val != null){
           return '\"' + val + '\"';
         }else{
           return "";
