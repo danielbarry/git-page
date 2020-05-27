@@ -25,11 +25,19 @@ public class Server extends Thread{
    *
    * Initialise the server.
    *
-   * @param port The port number to start the server on.
-   * @param url The URL to be used for the RSS feed.
-   * @param repos The directories of the repositories of interest.
+   * @param config Access to the configuration data.
    **/
-  public Server(int port, String url, String[] repos){
+  public Server(JSON config){
+    int port = -1;
+    /* Try to get a port number */
+    if(config != null && config.get("port") != null && config.get("port").value() != null){
+      try{
+        port = Integer.parseInt(config.get("port").value());
+      }catch(NumberFormatException e){
+        port = -1;
+      }
+    }
+    /* Try to start the server */
     try{
       ss = new ServerSocket(port);
     }catch(IOException e){
@@ -37,7 +45,8 @@ public class Server extends Thread{
       ss = null;
     }
     s = null;
-    pb = new PageBuilder(repos, url + ":" + port);
+    /* Pre-build PageBuilder instance for the server */
+    pb = new PageBuilder(config);
   }
 
   /**
@@ -60,6 +69,11 @@ public class Server extends Thread{
    * Run the main loop for the server.
    **/
   public void loop(){
+    /* Check if server was setup correctly */
+    if(ss == null){
+      Main.log("Server could not be started, stopping thread");
+      return;
+    }
     /* Infinite loop */
     for(;;){
       try{

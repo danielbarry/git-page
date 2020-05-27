@@ -38,27 +38,41 @@ public class PageBuilder{
    *
    * Load all of the repositories that are to be displayed by the web server.
    *
-   * @param repos The repositories to be managed.
-   * @param url The URL to be used for the RSS feed.
+   * @param config Access to the configuration data.
    **/
-  public PageBuilder(String[] repos, String url){
-    this.repos = new HashMap<String, File>();
-    for(String r : repos){
-      File d = new File(r);
+  public PageBuilder(JSON config){
+    /* Make sure the configuration structure exists */
+    if(config == null || config.get("repos") == null){
+      Main.warn("No repository configuration provided");
+      return;
+    }
+    /* Add repos to be monitored */
+    repos = new HashMap<String, File>();
+    for(int x = 0; x < config.get("repos").length(); x++){
+      JSON entry = config.get("repos").get(x);
+      if(
+        entry == null                                 ||
+        entry.get("dir") == null                      ||
+        entry.get("dir").value() == null              ||
+        entry.get("url") == null                      ||
+        entry.get("url").value() == null
+      ){
+        Main.log("Skipping repository #" + x);
+        break;
+      }
+      File d = new File(entry.get("dir").value());
       if(d.exists() && d.isDirectory() && d.canRead()){
-        File p = d.getAbsoluteFile().getParentFile();
-        if(!d.getName().equals(".")){
-          Main.log("Adding repository '" + d.getName() + "'");
-          this.repos.put(d.getName(), d.getAbsoluteFile());
-        }else{
-          Main.log("Adding repository '" + p.getName() + "'");
-          this.repos.put(p.getName(), p.getAbsoluteFile());
-        }
+        repos.put(entry.get("url").value(), d.getAbsoluteFile());
       }else{
-        Main.warn("Unable to use repository '" + r + "'");
+        Main.warn("Unable to use repository '" + entry.get("url").value() + "'");
       }
     }
-    this.url = url;
+    /* Attempt to set repository */
+    if(config.get("url") != null && config.get("url").value() != null){
+      url = config.get("url").value();
+    }else{
+      url = "127.0.0.1";
+    }
     /* Pre-process the page header */
     pageHeader = (
       /* Small amount of CSS */

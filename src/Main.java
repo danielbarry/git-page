@@ -9,10 +9,6 @@ import java.util.ArrayList;
  **/
 public class Main{
   private JSON config;
-  private boolean maintain;
-  private ArrayList<String> repos;
-  private int port;
-  private String url;
 
   /**
    * main()
@@ -36,10 +32,6 @@ public class Main{
   public Main(String[] args){
     /* Initialise local variables */
     config = null;
-    maintain = false;
-    repos = new ArrayList<String>();
-    port = -1;
-    url = "http://127.0.0.1";
     /* Loop over the arguments */
     for(int x = 0; x < args.length; x++){
       switch(args[x]){
@@ -51,35 +43,19 @@ public class Main{
         case "--help" :
           x = help(args, x);
           break;
-        case "-r" :
-        case "--repo" :
-          x = repo(args, x);
-          break;
-        case "-s" :
-        case "--server" :
-          x = server(args, x);
-          break;
         case "-t" :
         case "--test" :
           x = test(args, x);
-          break;
-        case "-u" :
-        case "--url" :
-          x = url(args, x);
           break;
         default :
           err("Unknown argument '" + args[x] + "'");
           break;
       }
     }
-    /* Check if we should run a server */
-    if(port >= 0){
-      (new Maintain(config)).start();
-      log("Starting the server");
-      (new Server(port, url, repos.toArray(new String[repos.size()]))).loop();
-    }else{
-      log("No action requested");
-    }
+    log("Starting maintenance thread");
+    (new Maintain(config)).start();
+    log("Starting server thread");
+    (new Server(config)).loop();
   }
 
   /**
@@ -121,53 +97,8 @@ public class Main{
     System.out.println("    -c  --config    Load a configuration file");
     System.out.println("                      <STR> Path to config file");
     System.out.println("    -h  --help      Display this help");
-    System.out.println("    -r  --repo      Set a repo to be managed");
-    System.out.println("                      <STR> Path of repository");
-    System.out.println("    -s  --server    Run the server");
-    System.out.println("                      <INT> The port number");
     System.out.println("    -t  --test      Perform internal tests");
-    System.out.println("    -u  --url       The URL to be used in the RSS");
     System.exit(0);
-    return x;
-  }
-
-  /**
-   * repo()
-   *
-   * Set a repository to be monitored.
-   *
-   * @param args The command line arguments.
-   * @param x The command line offset.
-   * @return The new command line offset.
-   **/
-  private int repo(String[] args, int x){
-    if(++x < args.length){
-      repos.add(args[x]);
-    }else{
-      err("Not enough params to set repository");
-    }
-    return x;
-  }
-
-  /**
-   * server()
-   *
-   * Get the server settings to be run.
-   *
-   * @param args The command line arguments.
-   * @param x The command line offset.
-   * @return The new command line offset.
-   **/
-  private int server(String[] args, int x){
-    if(++x < args.length){
-      try{
-        port = Integer.parseInt(args[x]);
-      }catch(NumberFormatException e){
-        err("Not a valid port number '" + args[x] + "'");
-      }
-    }else{
-      err("Not enough params to set server port");
-    }
     return x;
   }
 
@@ -183,24 +114,6 @@ public class Main{
   private int test(String[] args, int x){
     JSON.test();
     System.exit(0);
-    return x;
-  }
-
-  /**
-   * url()
-   *
-   * Set the URL to be used for the RSS feed.
-   *
-   * @param args The command line arguments.
-   * @param x The command line offset.
-   * @return The new command line offset.
-   **/
-  private int url(String[] args, int x){
-    if(++x < args.length){
-      url = args[x];
-    }else{
-      err("Not enough params to set server port");
-    }
     return x;
   }
 
