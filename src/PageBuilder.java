@@ -27,10 +27,10 @@ public class PageBuilder{
   private static final byte[] HTTP_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n".getBytes();
   private static final byte[] XML_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: application/xml\r\n\r\n".getBytes();
   private static final byte[] INDEX_BAD = "<h1>Bad Request</h1>".getBytes();
-  private static final String REQ_PRE = "/git";
 
-  private HashMap<String, File> repos;
+  private String reqPre;
   private String url;
+  private HashMap<String, File> repos;
   private byte[] pageHeader;
 
   /**
@@ -41,6 +41,9 @@ public class PageBuilder{
    * @param config Access to the configuration data.
    **/
   public PageBuilder(JSON config){
+    /* Set sane defaults */
+    reqPre = "";
+    url = "127.0.0.1";
     /* Make sure the configuration structure exists */
     if(config.get("repos") == null){
       Main.warn("No repository configuration provided");
@@ -67,11 +70,21 @@ public class PageBuilder{
         Main.warn("Unable to use repository '" + entry.get("url").value() + "'");
       }
     }
-    /* Attempt to set repository */
-    if(config.get("url") != null && config.get("url").value() != null){
-      url = config.get("url").value();
+    /* Try to get server settings */
+    if(config.get("server") != null){
+      JSON sConfig = config.get("server");
+      /* Try to set request pre-string */
+      if(sConfig.get("url-sub") != null && sConfig.get("url-sub").value() != null){
+        reqPre = sConfig.get("url-sub").value();
+        Main.log("Request pre-string set to '" + reqPre + "'");
+      }
+      /* Try to set URL */
+      if(sConfig.get("url") != null && sConfig.get("url").value() != null){
+        url = sConfig.get("url").value();
+        Main.log("Request URL set to '" + url + "'");
+      }
     }else{
-      url = "127.0.0.1";
+      Main.warn("No configuration found for server");
     }
     /* Pre-process the page header */
     pageHeader = (
@@ -121,7 +134,7 @@ public class PageBuilder{
         /* Core navigation */
         "<td><nav>" +
         "<b>Git Page</b> > " +
-        "<a href=\"" + REQ_PRE + "/\">Home</a>" +
+        "<a href=\"" + reqPre + "/\">Home</a>" +
         "</nav></td>" +
       "</tr></table>"
     ).getBytes();
@@ -139,14 +152,14 @@ public class PageBuilder{
     /* Store entry timestamp */
     long start = System.nanoTime();
     /* Store pre-string for this request */
-    String pre = REQ_PRE;
+    String pre = reqPre;
     /* Handle different cases */
     switch(req){
       case "?" :
         os.write(INDEX_BAD);
         break;
       default :
-        /* Check for special string "/git" */
+        /* Check for special string */
         if(req.startsWith(pre)){
           req = req.substring(pre.length());
         }else{
