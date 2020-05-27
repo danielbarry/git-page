@@ -23,12 +23,8 @@ public class Maintain extends Thread{
    **/
   public Maintain(JSON config){
     /* Make sure the configuration structure exists */
-    if(config == null){
-      Main.warn("Not configuration file provided");
-      return;
-    }
-    if(config.get("repos") == null){
-      Main.warn("Repos not found in configuration file");
+    if(config == null || config.get("repos") == null){
+      Main.warn("No repository configuration provided");
       return;
     }
     /* Add repos to be monitored */
