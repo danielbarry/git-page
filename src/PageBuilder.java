@@ -631,6 +631,7 @@ public class PageBuilder{
           "<item>" +
             "<title>" + sanitize(title) + "</title>" +
             "<guid>" + url + pre + "/" + proj + "/commit/" + log[0] + "</guid>" +
+            /* TODO: Should escape CDATA. */
             "<description><![CDATA[<table>" +
               "<tr><td>Hash</td><td>"    + log[0]           + "</td></tr>" +
               "<tr><td>Ref</td><td>"     + sanitize(log[1]) + "</td></tr>" +
