@@ -273,7 +273,7 @@ public class PageBuilder{
   private void genRoot(OutputStream os, String pre) throws IOException{
     os.write("<table>".getBytes());
     for(String key : repos.keySet()){
-      os.write(("<tr><td><a href=\"" + pre + "/" + key + "\">" + key + "</a></li></td></tr>").getBytes());
+      os.write(("<tr><td><a href=\"" + pre + "/" + key + "\">" + key + "</a></td></tr>").getBytes());
     }
     os.write("</table>".getBytes());
   }
