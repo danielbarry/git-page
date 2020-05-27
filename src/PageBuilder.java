@@ -123,7 +123,7 @@ public class PageBuilder{
         "<b>Git Page</b> > " +
         "<a href=\"" + REQ_PRE + "/\">Home</a>" +
         "</nav></td>" +
-      "</td></table>"
+      "</tr></table>"
     ).getBytes();
   }
 
