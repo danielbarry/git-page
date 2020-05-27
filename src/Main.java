@@ -8,6 +8,7 @@ import java.util.ArrayList;
  * Decide on the execution of the program.
  **/
 public class Main{
+  private JSON config;
   private boolean maintain;
   private ArrayList<String> repos;
   private int port;
@@ -34,6 +35,7 @@ public class Main{
    **/
   public Main(String[] args){
     /* Initialise local variables */
+    config = null;
     maintain = false;
     repos = new ArrayList<String>();
     port = -1;
@@ -41,6 +43,10 @@ public class Main{
     /* Loop over the arguments */
     for(int x = 0; x < args.length; x++){
       switch(args[x]){
+        case "-c" :
+        case "--config" :
+          x = config(args, x);
+          break;
         case "-h" :
         case "--help" :
           x = help(args, x);
@@ -85,6 +91,28 @@ public class Main{
   }
 
   /**
+   * config()
+   *
+   * Load a configuration file if possible.
+   *
+   * @param args The command line arguments.
+   * @param x The command line offset.
+   * @return The new command line offset.
+   **/
+  private int config(String[] args, int x){
+    if(++x < args.length){
+      try{
+        config = JSON.build(args[x]);
+      }catch(Exception e){
+        err("Unable to parse JSON file");
+      }
+    }else{
+      err("Not enough params to set configuration");
+    }
+    return x;
+  }
+
+  /**
    * help()
    *
    * Display the help and then exit.
@@ -98,6 +126,8 @@ public class Main{
     System.out.println("");
     System.out.println("  OPTions");
     System.out.println("");
+    System.out.println("    -c  --config    Load a configuration file");
+    System.out.println("                      <STR> Path to config file");
     System.out.println("    -h  --help      Display this help");
     System.out.println("    -m  --maintain  Poll repositories for changes");
     System.out.println("    -r  --repo      Set a repo to be managed");
