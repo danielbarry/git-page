@@ -248,7 +248,7 @@ public class JSON{
    * @return The value, otherwise NULL.
    **/
   public String value(){
-    return val;
+    return val != null ? val : key;
   }
 
   /**
