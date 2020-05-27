@@ -1,2 +1,15 @@
 {
+  "page": {
+    "title": "Git Page"
+  }.
+  "port": "8080",
+  "repos": [
+    {
+      "dir": ".",
+      "maintain": "false",
+      "name": "Git Page",
+      "url": "git-page"
+    }
+  ],
+  "url" : "127.0.0.1"
 }
