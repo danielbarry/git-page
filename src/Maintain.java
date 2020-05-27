@@ -19,23 +19,42 @@ public class Maintain extends Thread{
    *
    * Initialise the variables for maintenance.
    *
-   * @param repos The directories of the repositories of interest.
+   * @param config Access to the configuration data.
    **/
-  public Maintain(String[] repos){
-    this.repos = new HashMap<String, File>();
-    for(String r : repos){
-      File d = new File(r);
+  public Maintain(JSON config){
+    /* Make sure the configuration structure exists */
+    if(config == null){
+      Main.warn("Not configuration file provided");
+      return;
+    }
+    if(config.get("repos") == null){
+      Main.warn("Repos not found in configuration file");
+      return;
+    }
+    /* Add repos to be monitored */
+    repos = new HashMap<String, File>();
+    for(int x = 0; x < config.get("repos").length(); x++){
+      JSON entry = config.get("repos").get(x);
+      if(
+        entry == null                                 ||
+        entry.get("dir") == null                      ||
+        entry.get("dir").value() == null              ||
+        entry.get("maintain") == null                 ||
+        entry.get("maintain").value() == null         ||
+        !entry.get("maintain").value().equals("true") ||
+        entry.get("name") == null                     ||
+        entry.get("name").value() == null             ||
+        entry.get("url") == null                      ||
+        entry.get("url").value() == null
+      ){
+        Main.log("Skipping repository #" + x);
+        break;
+      }
+      File d = new File(entry.get("dir").value());
       if(d.exists() && d.isDirectory() && d.canRead()){
-        File p = d.getAbsoluteFile().getParentFile();
-        if(!d.getName().equals(".")){
-          Main.log("Adding repository '" + d.getName() + "'");
-          this.repos.put(d.getName(), d.getAbsoluteFile());
-        }else{
-          Main.log("Adding repository '" + p.getName() + "'");
-          this.repos.put(p.getName(), p.getAbsoluteFile());
-        }
+        repos.put(entry.get("url").value(), d.getAbsoluteFile());
       }else{
-        Main.warn("Unable to use repository '" + r + "'");
+        Main.warn("Unable to use repository '" + entry.get("name").value() + "'");
       }
     }
   }

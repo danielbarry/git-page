@@ -51,10 +51,6 @@ public class Main{
         case "--help" :
           x = help(args, x);
           break;
-        case "-m" :
-        case "--maintain" :
-          x = maintain(args, x);
-          break;
         case "-r" :
         case "--repo" :
           x = repo(args, x);
@@ -78,11 +74,7 @@ public class Main{
     }
     /* Check if we should run a server */
     if(port >= 0){
-      /* Check if maintenance needed */
-      if(maintain){
-        log("Starting maintenance loop");
-        (new Maintain(repos.toArray(new String[repos.size()]))).start();
-      }
+      (new Maintain(config)).start();
       log("Starting the server");
       (new Server(port, url, repos.toArray(new String[repos.size()]))).loop();
     }else{
@@ -129,7 +121,6 @@ public class Main{
     System.out.println("    -c  --config    Load a configuration file");
     System.out.println("                      <STR> Path to config file");
     System.out.println("    -h  --help      Display this help");
-    System.out.println("    -m  --maintain  Poll repositories for changes");
     System.out.println("    -r  --repo      Set a repo to be managed");
     System.out.println("                      <STR> Path of repository");
     System.out.println("    -s  --server    Run the server");
@@ -137,20 +128,6 @@ public class Main{
     System.out.println("    -t  --test      Perform internal tests");
     System.out.println("    -u  --url       The URL to be used in the RSS");
     System.exit(0);
-    return x;
-  }
-
-  /**
-   * maintain()
-   *
-   * Flag to maintain all of the repositories referenced.
-   *
-   * @param args The command line arguments.
-   * @param x The command line offset.
-   * @return The new command line offset.
-   **/
-  private int maintain(String[] args, int x){
-    maintain = true;
     return x;
   }
 
