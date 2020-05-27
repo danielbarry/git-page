@@ -22,7 +22,7 @@ public class Maintain extends Thread{
    **/
   public Maintain(JSON config){
     /* Make sure the configuration structure exists */
-    if(config == null || config.get("repos") == null){
+    if(config.get("repos") == null){
       Main.warn("No repository configuration provided");
       return;
     }
