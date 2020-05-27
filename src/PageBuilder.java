@@ -122,6 +122,8 @@ public class PageBuilder{
     }
     /* Pre-process the page header */
     pageHeader = (
+      /* Define the page title */
+      "<head><title>" + title + "</title></head>" +
       /* Small amount of CSS */
       "<style type=\"text/css\">" + css + "</style>" +
       /* Header and core formatting */
