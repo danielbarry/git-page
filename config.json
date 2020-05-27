@@ -24,6 +24,7 @@
         "padding:4px;",
       "}"
     ],
+    "error": "<h1>Bad Request</h1>",
     "logo": "<svg width=\"64\" height=\"64\"><polyline points=\"32,0 0,32 32,64 64,32 32,32 32,48 16,32 32,16 48,32 64,32\" fill=\"#000\"/></svg>",
     "title": "Git Page"
   },

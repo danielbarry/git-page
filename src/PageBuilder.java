@@ -26,8 +26,8 @@ public class PageBuilder{
   private static final String[] INDEX_EXTS = new String[]{ "md", "markdown", "txt", "htm", "html" };
   private static final byte[] HTTP_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n".getBytes();
   private static final byte[] XML_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: application/xml\r\n\r\n".getBytes();
-  private static final byte[] INDEX_BAD = "<h1>Bad Request</h1>".getBytes();
 
+  private byte[] indexBad;
   private String reqPre;
   private String url;
   private HashMap<String, File> repos;
@@ -45,6 +45,7 @@ public class PageBuilder{
     String css = "";
     String title = "Git Page";
     String logo = "";
+    indexBad = "Error".getBytes();
     reqPre = "";
     url = "127.0.0.1";
     /* Make sure the configuration structure exists */
@@ -76,6 +77,11 @@ public class PageBuilder{
     /* Try to get page settings */
     if(config.get("page") != null){
       JSON sConfig = config.get("page");
+      /* Try to set index bad */
+      if(sConfig.get("error") != null && sConfig.get("error").value() != null){
+        indexBad = sConfig.get("error").value().getBytes();
+        Main.log("Error set");
+      }
       /* Try to set CSS */
       if(sConfig.get("css") != null && sConfig.get("css").length() > 0){
         css = "";
@@ -147,7 +153,7 @@ public class PageBuilder{
     /* Handle different cases */
     switch(req){
       case "?" :
-        os.write(INDEX_BAD);
+        os.write(indexBad);
         break;
       default :
         /* Check for special string */
@@ -184,7 +190,7 @@ public class PageBuilder{
                 break;
               default :
                 genHeader(os, pre, paths[1]);
-                os.write(INDEX_BAD);
+                os.write(indexBad);
                 genFooter(os, pre, start);
                 break;
             }
@@ -209,14 +215,14 @@ public class PageBuilder{
                 genPage(os, pre, paths[1], page);
                 break;
               default :
-                os.write(INDEX_BAD);
+                os.write(indexBad);
                 break;
             }
             genFooter(os, pre, start);
             break;
           default :
             genHeader(os, pre, paths[1]);
-            os.write(INDEX_BAD);
+            os.write(indexBad);
             genFooter(os, pre, start);
             break;
         }
@@ -294,7 +300,7 @@ public class PageBuilder{
   private void genOverview(OutputStream os, String pre, String proj) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj)){
-      os.write(INDEX_BAD);
+      os.write(indexBad);
       return;
     }
     /* Find the overview page */
@@ -380,7 +386,7 @@ public class PageBuilder{
   private void genPage(OutputStream os, String pre, String proj, int page) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj) || page < 0){
-      os.write(INDEX_BAD);
+      os.write(indexBad);
       return;
     }
     /* Generate pages navigation */
@@ -438,7 +444,7 @@ public class PageBuilder{
       commit == null           ||
       !Git.validCommit(commit)
     ){
-      os.write(INDEX_BAD);
+      os.write(indexBad);
       return;
     }
     /* Generate pages navigation */
@@ -450,7 +456,7 @@ public class PageBuilder{
     String[] details = Git.gitCommit(repos.get(proj), commit);
     /* Make sure they were generated! */
     if(details.length != 11){
-      os.write(INDEX_BAD);
+      os.write(indexBad);
       return;
     }
     os.write("<table>".getBytes());
@@ -486,7 +492,7 @@ public class PageBuilder{
       commit == null           ||
       !Git.validCommit(commit)
     ){
-      os.write(INDEX_BAD);
+      os.write(indexBad);
       return;
     }
     /* Generate pages navigation */
