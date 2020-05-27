@@ -52,10 +52,13 @@ public class Main{
           break;
       }
     }
-    log("Starting maintenance thread");
-    (new Maintain(config)).start();
-    log("Starting server thread");
-    (new Server(config)).loop();
+    /* if we have a server config, try to start the server */
+    if(config != null){
+      log("Starting maintenance thread");
+      (new Maintain(config)).start();
+      log("Starting server thread");
+      (new Server(config)).loop();
+    }
   }
 
   /**
