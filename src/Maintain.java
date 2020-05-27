@@ -21,6 +21,8 @@ public class Maintain extends Thread{
    * @param config Access to the configuration data.
    **/
   public Maintain(JSON config){
+    /* Set sane defaults */
+    repoLoopMillis = 1000 * 600;
     /* Make sure the configuration structure exists */
     if(config.get("repos") == null){
       Main.warn("No repository configuration provided");
@@ -32,16 +34,8 @@ public class Maintain extends Thread{
       config.get("maintain").get("loop-wait-s") != null &&
       config.get("maintain").get("loop-wait-s").value() != null
     ){
-      try{
-        repoLoopMillis = 1000 *
-          Integer.parseInt(config.get("maintain").get("loop-wait-s").value());
-      }catch(NumberFormatException e){
-        repoLoopMillis = 1000 * 600;
-        Main.log("Invalid number, setting default loop wait");
-      }
-    }else{
-      repoLoopMillis = 1000 * 600;
-      Main.log("No value available, setting default loop wait");
+      repoLoopMillis = 1000 *
+        Integer.parseInt(config.get("maintain").get("loop-wait-s").value());
     }
     /* Add repos to be monitored */
     repos = new HashMap<String, File>();
