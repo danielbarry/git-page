@@ -10,8 +10,7 @@ import java.util.HashMap;
  * the latest changes.
  **/
 public class Maintain extends Thread{
-  private static final int REPO_LOOP_MILLIS = 1000 * 600;
-
+  private int repoLoopMillis;
   private HashMap<String, File> repos;
 
   /**
@@ -26,6 +25,23 @@ public class Maintain extends Thread{
     if(config == null || config.get("repos") == null){
       Main.warn("No repository configuration provided");
       return;
+    }
+    /* Get a loop time */
+    if(
+      config.get("maintain") != null &&
+      config.get("maintain").get("loop-wait-s") != null &&
+      config.get("maintain").get("loop-wait-s").value() != null
+    ){
+      try{
+        repoLoopMillis = 1000 *
+          Integer.parseInt(config.get("maintain").get("loop-wait-s").value());
+      }catch(NumberFormatException e){
+        repoLoopMillis = 1000 * 600;
+        Main.log("Invalid number, setting default loop wait");
+      }
+    }else{
+      repoLoopMillis = 1000 * 600;
+      Main.log("No value available, setting default loop wait");
     }
     /* Add repos to be monitored */
     repos = new HashMap<String, File>();
@@ -69,7 +85,7 @@ public class Maintain extends Thread{
     for(;;){
       Main.log("Checking repos...");
       /* Pre-compute timeout value */
-      long loopTimeout = System.currentTimeMillis() + REPO_LOOP_MILLIS;
+      long loopTimeout = System.currentTimeMillis() + repoLoopMillis;
       /* Check each repository */
       for(String key : repos.keySet()){
         try{

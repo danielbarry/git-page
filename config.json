@@ -1,7 +1,10 @@
 {
+  "maintain": {
+    "loop-wait-s": "600"
+  },
   "page": {
     "title": "Git Page"
-  }.
+  },
   "port": "8080",
   "repos": [
     {
