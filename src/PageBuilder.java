@@ -77,6 +77,8 @@ public class PageBuilder{
     pageHeader = (
       /* Small amount of CSS */
       "<style>" +
+        /* Set background white */
+        "body,html{background-color:#FFF;}" +
         /* Make the table the width of the display */
         "table{width:100%;}" +
         /* Make rows more easily distinguishable */
