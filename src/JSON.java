@@ -383,39 +383,27 @@ public class JSON{
     /* Setup variables */
     String[] test = new String[]{
       "{}",
-       "",
       "{\"test\"}",
-       "\"test\"",
       "{\"test\":\"123\"}",
-       "\"test\":\"123\"",
       "{\"test\":{}}",
-       "\"test\":{}",
       "{\"test\":[]}",
-       "\"test\":[]",
       "{\"test\":{\"arg-a\",\"arg-b\"}}",
-       "\"test\":{\"arg-a\",\"arg-b\"}",
       "{\"test\":[\"arg-a\",\"arg-b\"]}",
-       "\"test\":[\"arg-a\",\"arg-b\"]",
       "{\"test\":{\"arg-a\":\"123\",\"arg-b\":\"456\"}}",
-       "\"test\":{\"arg-a\":\"123\",\"arg-b\":\"456\"}",
       "{\"test\":[\"arg-a\":\"123\",\"arg-b\":\"456\"]}",
-       "\"test\":[\"arg-a\":\"123\",\"arg-b\":\"456\"]",
       "{\"test\":{{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}}}",
-       "\"test\":{{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}}",
       "{\"test\":[{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}]}",
-       "\"test\":[{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}]",
-      "{\"1\":[\"a\"],\"2\":[\"b\"]}",
-       "\"1\":[\"a\"],\"2\":[\"b\"]"
+      "{\"1\":[\"a\"],\"2\":[\"b\"]}"
     };
     boolean r = true;
     /* Run parser tests */
     for(int x = 0; x < test.length; x += 2){
       try{
-        boolean a = assurt(new JSON(test[x]).toString().equals(test[x + 1]));
+        boolean a = assurt(new JSON(test[x]).toString().equals(test[x]));
         if(!a){
           System.out.println("  in:  '" + test[x] + "'");
           System.out.println("  got: '" + new JSON(test[x]).toString() + "' !=");
-          System.out.println("  exp: '" + test[x + 1] + "'");
+          System.out.println("  exp: '" + test[x] + "'");
         }
         r &= a;
       }catch(Exception e){
@@ -427,9 +415,9 @@ public class JSON{
     /* Run getter tests */
     try{
       r &= assurt(new JSON("{\"test\":[{\"arg-a\":\"123\"},{\"arg-b\":\"456\"}]}")
-        .get(0).toString().equals("{\"arg-a\":\"123\"}"));
+        .get(0).get(0).toString().equals("{\"arg-a\":\"123\"}"));
       r &= assurt(new JSON("{\"test\":[\"arg-a\":\"123\",\"arg-b\":\"456\"]}")
-        .get("arg-b").toString().equals("\"arg-b\":\"456\""));
+        .get(0).get("arg-b").toString().equals("\"arg-b\":\"456\""));
     }catch(Exception e){
       System.out.println(">> Major Screw Up <<");
       e.printStackTrace();
