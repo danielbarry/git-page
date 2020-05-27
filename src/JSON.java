@@ -230,24 +230,24 @@ public class JSON{
   }
 
   /**
-   * getKey()
+   * key()
    *
    * Get the key for this JSON object. NOTE: Array elements may not have a key.
    *
    * @return The key, otherwise NULL.
    **/
-  public String getKey(){
+  public String key(){
     return key;
   }
 
   /**
-   * getValue()
+   * value()
    *
    * Get the value for this JSON object. NOTE: Only strings will have keys.
    *
    * @return The value, otherwise NULL.
    **/
-  public String getValue(){
+  public String value(){
     return val;
   }
 
@@ -296,7 +296,7 @@ public class JSON{
     if(childs != null && key != null){
       for(int x = 0; x < childs.size(); x++){
         JSON c = childs.get(x);
-        if(c != null && c.getKey() != null && c.getKey().equals(key)){
+        if(c != null && c.key() != null && c.key().equals(key)){
           return c;
         }
       }
