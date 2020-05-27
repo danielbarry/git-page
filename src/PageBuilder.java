@@ -623,13 +623,13 @@ public class PageBuilder{
           "<item>" +
             "<title>" + sanitize(title) + "</title>" +
             "<guid>" + url + pre + "/" + proj + "/commit/" + log[0] + "</guid>" +
-            "<description>" +
-              log[0] + " " +
-              sanitize(log[1]) + " " +
-              sanitize(log[2]) + " " +
-              sanitize(log[3]) + " " +
-              sanitize(log[4]) + " " +
-            "</description>" +
+            "<description><![CDATA[<table>" +
+              "<tr><td>Hash</td><td>"    + log[0]           + "</td></tr>" +
+              "<tr><td>Ref</td><td>"     + sanitize(log[1]) + "</td></tr>" +
+              "<tr><td>Date</td><td>"    + sanitize(log[2]) + "</td></tr>" +
+              "<tr><td>Author</td><td>"  + sanitize(log[3]) + "</td></tr>" +
+              "<tr><td>Comment</td><td>" + sanitize(log[4]) + "</td></tr>" +
+            "</table>]]></description>" +
             "<link>" + url + pre + "/" + proj + "/commit/" + log[0] + "</link>" +
           "</item>"
         ).getBytes());
