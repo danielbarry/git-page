@@ -95,11 +95,19 @@ public class PageBuilder{
         "}" +
       "</style>" +
       /* Header and core formatting */
-      "<h1>Git Page</h1>" +
-      /* Core navigation */
-      "<nav>" +
-      "<a href=\"" + REQ_PRE + "/\">Home</a>" +
-      "</nav>"
+      "<table><tr>" +
+        /* Display SVG logo */
+        "<td style=\"width:64px\"><svg width=\"64\" height=\"64\">" +
+          "<polyline points=\"" +
+            "32,0 0,32 32,64 64,32 32,32 32,48 16,32 32,16 48,32 64,32" +
+          "\" fill=\"#000\"/>" +
+        "</svg></td>" +
+        /* Core navigation */
+        "<td><nav>" +
+        "<b>Git Page</b> > " +
+        "<a href=\"" + REQ_PRE + "/\">Home</a>" +
+        "</nav></td>" +
+      "</td></table>"
     ).getBytes();
   }
 
