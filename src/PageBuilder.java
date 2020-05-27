@@ -42,6 +42,8 @@ public class PageBuilder{
    **/
   public PageBuilder(JSON config){
     /* Set sane defaults */
+    String title = "Git Page";
+    String logo = "";
     reqPre = "";
     url = "127.0.0.1";
     /* Make sure the configuration structure exists */
@@ -69,6 +71,22 @@ public class PageBuilder{
       }else{
         Main.warn("Unable to use repository '" + entry.get("url").value() + "'");
       }
+    }
+    /* Try to get page settings */
+    if(config.get("page") != null){
+      JSON sConfig = config.get("page");
+      /* Try to set request title */
+      if(sConfig.get("title") != null && sConfig.get("title").value() != null){
+        title = sConfig.get("title").value();
+        Main.log("Title set to '" + title + "'");
+      }
+      /* Try to set request logo */
+      if(sConfig.get("logo") != null && sConfig.get("logo").value() != null){
+        logo = sConfig.get("logo").value();
+        Main.log("Logo set to '" + logo + "'");
+      }
+    }else{
+      Main.warn("No configuration found for server");
     }
     /* Try to get server settings */
     if(config.get("server") != null){
@@ -126,14 +144,10 @@ public class PageBuilder{
       /* Header and core formatting */
       "<table><tr>" +
         /* Display SVG logo */
-        "<td style=\"width:0px\"><svg width=\"64\" height=\"64\">" +
-          "<polyline points=\"" +
-            "32,0 0,32 32,64 64,32 32,32 32,48 16,32 32,16 48,32 64,32" +
-          "\" fill=\"#000\"/>" +
-        "</svg></td>" +
+        "<td style=\"width:0px\">" + logo + "</td>" +
         /* Core navigation */
         "<td><nav>" +
-        "<b>Git Page</b> > " +
+        "<b>" + title + "</b> > " +
         "<a href=\"" + reqPre + "/\">Home</a>" +
         "</nav></td>" +
       "</tr></table>"
