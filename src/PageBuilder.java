@@ -123,7 +123,7 @@ public class PageBuilder{
     /* Pre-process the page header */
     pageHeader = (
       /* Small amount of CSS */
-      "<style>" + css + "</style>" +
+      "<style type=\"text/css\">" + css + "</style>" +
       /* Header and core formatting */
       "<table><tr>" +
         /* Display SVG logo */
