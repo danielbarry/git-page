@@ -169,7 +169,7 @@ public class JSON{
    **/
   public static JSON build(File file) throws Exception{
     /* Check that the file is valid */
-    if(file == null || file.isFile()){
+    if(file == null || !file.isFile()){
       throw new Exception("Unable to find JSON file");
     }
     /* Load the file */
