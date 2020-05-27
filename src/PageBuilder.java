@@ -24,8 +24,16 @@ public class PageBuilder{
 
   private static final String[] INDEX_NAMES = new String[]{ "readme", "index" };
   private static final String[] INDEX_EXTS = new String[]{ "md", "markdown", "txt", "htm", "html" };
-  private static final byte[] HTTP_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n".getBytes();
-  private static final byte[] XML_HEAD = "HTTP/1.1 200 OK\r\nContent-Type: application/xml\r\n\r\n".getBytes();
+  private static final byte[] HTTP_HEAD = (
+    "HTTP/1.1 200 OK\r\n" +
+    "Content-Type: text/html\r\n" +
+    "\r\n"
+  ).getBytes();
+  private static final byte[] XML_HEAD = (
+    "HTTP/1.1 200 OK\r\n" +
+    "Content-Type: application/xml\r\n" +
+    "\r\n"
+  ).getBytes();
 
   private byte[] indexBad;
   private String reqPre;
