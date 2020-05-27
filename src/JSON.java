@@ -413,8 +413,9 @@ public class JSON{
       try{
         boolean a = assurt(new JSON(test[x]).toString().equals(test[x + 1]));
         if(!a){
-          System.out.println("  '" + new JSON(test[x]).toString() + "' !=");
-          System.out.println("  '" + test[x + 1] + "'");
+          System.out.println("  in:  '" + test[x] + "'");
+          System.out.println("  got: '" + new JSON(test[x]).toString() + "' !=");
+          System.out.println("  exp: '" + test[x + 1] + "'");
         }
         r &= a;
       }catch(Exception e){
