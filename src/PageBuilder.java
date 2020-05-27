@@ -122,10 +122,14 @@ public class PageBuilder{
     }
     /* Pre-process the page header */
     pageHeader = (
+      /* Tell the browser what we are */
+      "<!DOCTYPE html><html>" +
       /* Define the page title */
       "<head><title>" + title + "</title></head>" +
       /* Small amount of CSS */
       "<style type=\"text/css\">" + css + "</style>" +
+      /* Start body */
+      "<body>" +
       /* Header and core formatting */
       "<table><tr>" +
         /* Display SVG logo */
@@ -272,6 +276,7 @@ public class PageBuilder{
       ((System.nanoTime() - ts) / 1000000) +
       "ms"
     ).getBytes());
+    os.write("</body></html>".getBytes());
   }
 
   /**
