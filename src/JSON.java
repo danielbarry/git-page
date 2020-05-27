@@ -165,10 +165,11 @@ public class JSON{
    * A factory builder to parse the JSON string from a file and generate the
    * relevant child objects.
    *
-   * @param file A valid file containing the JSON data.
+   * @param filename A valid file containing the JSON data.
    **/
-  public static JSON build(File file) throws Exception{
+  public static JSON build(String filename) throws Exception{
     /* Check that the file is valid */
+    File file = new File(filename);
     if(file == null || !file.isFile()){
       throw new Exception("Unable to find JSON file");
     }
