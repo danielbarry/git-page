@@ -156,7 +156,7 @@ public class JSON{
    * @param json The valid JSON input String.
    **/
   public JSON(String json) throws Exception{
-    this(json, 0);
+    this('{' + json + '}', 0);
   }
 
   /**
