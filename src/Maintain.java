@@ -38,8 +38,6 @@ public class Maintain extends Thread{
         entry.get("maintain") == null                 ||
         entry.get("maintain").value() == null         ||
         !entry.get("maintain").value().equals("true") ||
-        entry.get("name") == null                     ||
-        entry.get("name").value() == null             ||
         entry.get("url") == null                      ||
         entry.get("url").value() == null
       ){
@@ -50,7 +48,7 @@ public class Maintain extends Thread{
       if(d.exists() && d.isDirectory() && d.canRead()){
         repos.put(entry.get("url").value(), d.getAbsoluteFile());
       }else{
-        Main.warn("Unable to use repository '" + entry.get("name").value() + "'");
+        Main.warn("Unable to use repository '" + entry.get("url").value() + "'");
       }
     }
   }
