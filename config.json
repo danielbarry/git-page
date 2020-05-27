@@ -3,6 +3,27 @@
     "loop-wait-s": "600"
   },
   "page": {
+    "css": [
+      "body,html{background-color:#FFF;}",
+      "table{width:100%;}",
+      "tr:nth-child(even){background-color: #EEE;}",
+      "nav{",
+        "background-color:#CCC;",
+        "overflow:hidden;",
+        "padding:8px;",
+      "}",
+      "nav.sub{background-color:#EEE;}",
+      "nav>a{",
+        "padding:8px;",
+        "text-decoration:none;",
+      "}",
+      "nav>a:hover{background-color:#AAA;}",
+      "pre{",
+        "background:#eee;",
+        "border-left:4px solid #222;",
+        "padding:4px;",
+      "}"
+    ],
     "logo": "<svg width=\"64\" height=\"64\"><polyline points=\"32,0 0,32 32,64 64,32 32,32 32,48 16,32 32,16 48,32 64,32\" fill=\"#000\"/></svg>",
     "title": "Git Page"
   },

@@ -42,6 +42,7 @@ public class PageBuilder{
    **/
   public PageBuilder(JSON config){
     /* Set sane defaults */
+    String css = "";
     String title = "Git Page";
     String logo = "";
     reqPre = "";
@@ -75,6 +76,15 @@ public class PageBuilder{
     /* Try to get page settings */
     if(config.get("page") != null){
       JSON sConfig = config.get("page");
+      /* Try to set CSS */
+      if(sConfig.get("css") != null && sConfig.get("css").length() > 0){
+        css = "";
+        JSON cssConfig = sConfig.get("css");
+        for(int x = 0; x < cssConfig.length(); x++){
+          css += cssConfig.get(x).value();
+        }
+        Main.log("CSS set");
+      }
       /* Try to set request title */
       if(sConfig.get("title") != null && sConfig.get("title").value() != null){
         title = sConfig.get("title").value();
@@ -83,7 +93,7 @@ public class PageBuilder{
       /* Try to set request logo */
       if(sConfig.get("logo") != null && sConfig.get("logo").value() != null){
         logo = sConfig.get("logo").value();
-        Main.log("Logo set to '" + logo + "'");
+        Main.log("Logo set");
       }
     }else{
       Main.warn("No configuration found for server");
@@ -107,40 +117,7 @@ public class PageBuilder{
     /* Pre-process the page header */
     pageHeader = (
       /* Small amount of CSS */
-      "<style>" +
-        /* Set background white */
-        "body,html{background-color:#FFF;}" +
-        /* Make the table the width of the display */
-        "table{width:100%;}" +
-        /* Make rows more easily distinguishable */
-        "tr:nth-child(even){background-color: #EEE;}" +
-        "nav{" +
-          /* Navigation should be easy to recognise */
-          "background-color:#CCC;" +
-          /* Flow the navigation bar correctly */
-          "overflow:hidden;" +
-          /* Allow "buttons" some space */
-          "padding:8px;" +
-        "}" +
-        /* Make window specific bar a different colour */
-        "nav.sub{background-color:#EEE;}" +
-        "nav>a{" +
-          /* "Buttons" should take up more space */
-          "padding:8px;" +
-          /* Remove hyperlink markup */
-          "text-decoration:none;" +
-        "}" +
-        /* "Buttons" should hover to show they are interactive */
-        "nav>a:hover{background-color:#AAA;}" +
-        "pre{" +
-          /* Code block should be visibly different */
-          "background:#eee;" +
-          /* Add a black bar to the left to really stand out */
-          "border-left:4px solid #222;" +
-          /* Code text shouldn't sit at the edges */
-          "padding:4px;" +
-        "}" +
-      "</style>" +
+      "<style>" + css + "</style>" +
       /* Header and core formatting */
       "<table><tr>" +
         /* Display SVG logo */
