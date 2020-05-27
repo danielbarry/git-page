@@ -1,6 +1,8 @@
 package b.gp;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * JSON.java
@@ -147,6 +149,41 @@ public class JSON{
   }
 
   /**
+   * JSON()
+   *
+   * Parse the JSON string and generate the relevant children objects.
+   *
+   * @param json The valid JSON input String.
+   **/
+  public JSON(String json) throws Exception{
+    this(json, 0);
+  }
+
+  /**
+   * build()
+   *
+   * A factory builder to parse the JSON string from a file and generate the
+   * relevant child objects.
+   *
+   * @param file A valid file containing the JSON data.
+   **/
+  public static JSON build(File file) throws Exception{
+    /* Check that the file is valid */
+    if(file == null || file.isFile()){
+      throw new Exception("Unable to find JSON file");
+    }
+    /* Load the file */
+    String json = "";
+    Scanner s = new Scanner(file);
+    while(s.hasNextLine()){
+      json += s.nextLine();
+    }
+    s.close();
+    /* Parse from root */
+    return new JSON(json);
+  }
+
+  /**
    * getRawLen()
    *
    * Get the raw parser length of what was parsed. This is intended to be used
@@ -156,17 +193,6 @@ public class JSON{
    **/
   public int getRawLen(){
     return rawLen;
-  }
-
-  /**
-   * JSON()
-   *
-   * Parse the JSON string and generate the relevant children objects.
-   *
-   * @param json The valid JSON input String.
-   **/
-  public JSON(String json) throws Exception{
-    this(json, 0);
   }
 
   /**
