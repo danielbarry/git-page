@@ -34,9 +34,10 @@ public class Git{
   }
 
   private static final int GIT_MAX_INPUT = 65536;
+  private static final int GIT_HASH_DIGEST_RAW = 20;
+  private static final int GIT_HASH_DIGEST_STR = 40;
   private static final int GIT_INDEX_VAR_LEN = 4;
   private static final int GIT_INDEX_INT_LEN = 2;
-  private static final int GIT_HASH_DIGEST_RAW = 20;
   private static final int GIT_INDEX_ENTRY_LEN = (GIT_INDEX_VAR_LEN * 10) +
                                                   GIT_HASH_DIGEST_RAW     +
                                                   GIT_INDEX_VAR_LEN;
