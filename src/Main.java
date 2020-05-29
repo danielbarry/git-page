@@ -1,6 +1,8 @@
 package b.gp;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Main.java
@@ -54,11 +56,51 @@ public class Main{
     }
     /* if we have a server config, try to start the server */
     if(config != null){
+      /* Get the repositories and load their git data */
+      HashMap<String, Git> repos = getRepos();
+      /* Start threads */
       log("Starting maintenance thread");
-      (new Maintain(config)).start();
+      (new Maintain(repos, config)).start();
       log("Starting server thread");
-      (new Server(config)).loop();
+      (new Server(repos, config)).loop();
     }
+  }
+
+  /**
+   * getRepos()
+   *
+   * Get the repositories to be monitored.
+   *
+   * @return A HashMap of repositories found.
+   **/
+  private HashMap<String, Git> getRepos(){
+    /* Add repos to be monitored */
+    HashMap<String, Git> repos = new HashMap<String, Git>();
+    for(int x = 0; x < config.get("repos").length(); x++){
+      JSON entry = config.get("repos").get(x);
+      if(
+        entry == null                                 ||
+        entry.get("dir") == null                      ||
+        entry.get("dir").value() == null              ||
+        entry.get("url") == null                      ||
+        entry.get("url").value() == null
+      ){
+        Main.log("Skipping repository #" + x);
+        break;
+      }
+      File d = new File(entry.get("dir").value());
+      if(d.exists() && d.isDirectory() && d.canRead()){
+        /* Get if we want the repo to be able to pull */
+        boolean pull = entry.get("maintain") != null    &&
+          entry.get("maintain").value() != null         &&
+          entry.get("maintain").value().equals("true");
+        Git git = new Git(d.getAbsoluteFile(), pull);
+        repos.put(entry.get("url").value(), git);
+      }else{
+        Main.warn("Unable to use repository '" + entry.get("url").value() + "'");
+      }
+    }
+    return repos;
   }
 
   /**
