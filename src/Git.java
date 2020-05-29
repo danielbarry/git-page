@@ -319,6 +319,7 @@ public class Git{
                 break;
               case "blob" :
                 Main.log("Blob");//TODO
+                /* TODO: Implement blobs. */
                 break;
               default :
                 Main.warn("Unknown object type");
