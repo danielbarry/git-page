@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.HashMap;
 
 /**
  * Git.java
@@ -33,6 +34,43 @@ public class Git{
     public String path;
   }
 
+  /**
+   * TreeEntry.Git.java
+   *
+   * A data structure for the tree entries.
+   **/
+  private class TreeEntry{
+    public int mode;
+    public String name;
+    public String hash;
+  }
+
+  /**
+   * Tree.Git.java
+   *
+   * A data structure for the trees.
+   **/
+  private class Tree{
+    public String hash;
+    public TreeEntry[] entries;
+  }
+
+  /**
+   * Commit.Git.java
+   *
+   * A data structure for the commits.
+   **/
+  private class Commit{
+  }
+
+  /**
+   * Blob.Git.java
+   *
+   * A data structure for the blobs.
+   **/
+  private class Blob{
+  }
+
   private static final int GIT_MAX_INPUT = 65536;
   private static final int GIT_HASH_DIGEST_RAW = 20;
   private static final int GIT_HASH_DIGEST_STR = 40;
@@ -44,6 +82,9 @@ public class Git{
 
   private File dir;
   private IndexEntry[] entries;
+  private HashMap<String, Tree> trees;
+  private HashMap<String, Commit> commits;
+  private HashMap<String, Blob> blobs;
 
   /**
    * Git()
@@ -54,6 +95,10 @@ public class Git{
    **/
   public Git(File dir){
     this.dir = dir;
+    this.entries = null;
+    this.trees = new HashMap<String, Tree>();
+    this.commits = new HashMap<String, Commit>();
+    this.blobs = new HashMap<String, Blob>();
     readIndex();
   }
 
