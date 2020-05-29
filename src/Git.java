@@ -313,8 +313,9 @@ public class Git{
                       break;
                   }
                 }
-                /* Set the subject */
+                /* Set the subject and store the commit */
                 c.subject = getString(buff, buffPtr, '\n');
+                commits.put(objectHash, c);
                 break;
               case "blob" :
                 Main.log("Blob");//TODO
