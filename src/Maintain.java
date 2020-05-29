@@ -11,23 +11,19 @@ import java.util.HashMap;
  **/
 public class Maintain extends Thread{
   private int repoLoopMillis;
-  private HashMap<String, File> repos;
+  private HashMap<String, Git> repos;
 
   /**
    * Maintain()
    *
    * Initialise the variables for maintenance.
    *
+   * @param repos The git repositories of interest.
    * @param config Access to the configuration data.
    **/
-  public Maintain(JSON config){
+  public Maintain(HashMap<String, Git> repos, JSON config){
     /* Set sane defaults */
     repoLoopMillis = 1000 * 600;
-    /* Make sure the configuration structure exists */
-    if(config.get("repos") == null){
-      Main.warn("No repository configuration provided");
-      return;
-    }
     /* Get a loop time */
     if(
       config.get("maintain") != null &&
@@ -38,29 +34,7 @@ public class Maintain extends Thread{
         Integer.parseInt(config.get("maintain").get("loop-wait-s").value());
     }
     /* Add repos to be monitored */
-    repos = new HashMap<String, File>();
-    for(int x = 0; x < config.get("repos").length(); x++){
-      JSON entry = config.get("repos").get(x);
-      if(
-        entry == null                                 ||
-        entry.get("dir") == null                      ||
-        entry.get("dir").value() == null              ||
-        entry.get("maintain") == null                 ||
-        entry.get("maintain").value() == null         ||
-        !entry.get("maintain").value().equals("true") ||
-        entry.get("url") == null                      ||
-        entry.get("url").value() == null
-      ){
-        Main.log("Skipping repository #" + x);
-        break;
-      }
-      File d = new File(entry.get("dir").value());
-      if(d.exists() && d.isDirectory() && d.canRead()){
-        repos.put(entry.get("url").value(), d.getAbsoluteFile());
-      }else{
-        Main.warn("Unable to use repository '" + entry.get("url").value() + "'");
-      }
-    }
+    this.repos = repos;
   }
 
   /**
@@ -84,12 +58,11 @@ public class Maintain extends Thread{
       for(String key : repos.keySet()){
         try{
           /* Check the repo for remote changes */
-          Git.gitFetch(repos.get(key)); // TODO
-//          if(Git.gitFetch(repos.get(key)).length() > 0){
-            Main.log("Pulling changes for '" + key + "'");
-            /* Pull changes if there are some */
-            Git.gitPull(repos.get(key));
-//          }
+          repos.get(key).fetch();
+          /* TODO: We should check the output of fetch before pulling! */
+          Main.log("Pulling changes for '" + key + "'");
+          /* Pull changes if there are some */
+          repos.get(key).pull();
         }catch(Exception e){
           Main.warn("Error checking repository '" + key + "'");
         }

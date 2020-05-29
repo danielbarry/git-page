@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 /**
  * Server.java
@@ -24,9 +25,10 @@ public class Server extends Thread{
    *
    * Initialise the server.
    *
+   * @param repos The git repositories of interest.
    * @param config Access to the configuration data.
    **/
-  public Server(JSON config){
+  public Server(HashMap<String, Git> repos, JSON config){
     /* Set sane defaults */
     int port = 8080;
     headSize = 256;
@@ -67,7 +69,7 @@ public class Server extends Thread{
     }
     s = null;
     /* Pre-build PageBuilder instance for the server */
-    pb = new PageBuilder(config);
+    pb = new PageBuilder(repos, config);
   }
 
   /**

@@ -38,7 +38,7 @@ public class PageBuilder{
   private byte[] indexBad;
   private String reqPre;
   private String url;
-  private HashMap<String, File> repos;
+  private HashMap<String, Git> repos;
   private byte[] pageHeader;
 
   /**
@@ -46,9 +46,10 @@ public class PageBuilder{
    *
    * Load all of the repositories that are to be displayed by the web server.
    *
+   * @param repos The git repositories of interest.
    * @param config Access to the configuration data.
    **/
-  public PageBuilder(JSON config){
+  public PageBuilder(HashMap<String, Git> repos, JSON config){
     /* Set sane defaults */
     String css = "";
     String title = "Git Page";
@@ -62,26 +63,7 @@ public class PageBuilder{
       return;
     }
     /* Add repos to be monitored */
-    repos = new HashMap<String, File>();
-    for(int x = 0; x < config.get("repos").length(); x++){
-      JSON entry = config.get("repos").get(x);
-      if(
-        entry == null                                 ||
-        entry.get("dir") == null                      ||
-        entry.get("dir").value() == null              ||
-        entry.get("url") == null                      ||
-        entry.get("url").value() == null
-      ){
-        Main.log("Skipping repository #" + x);
-        break;
-      }
-      File d = new File(entry.get("dir").value());
-      if(d.exists() && d.isDirectory() && d.canRead()){
-        repos.put(entry.get("url").value(), d.getAbsoluteFile());
-      }else{
-        Main.warn("Unable to use repository '" + entry.get("url").value() + "'");
-      }
-    }
+    this.repos = repos;
     /* Try to get page settings */
     if(config.get("page") != null){
       JSON sConfig = config.get("page");
@@ -321,20 +303,18 @@ public class PageBuilder{
     /* Find the overview page */
     File file = null;
     int ext = 0;
-    File[] files = repos.get(proj).listFiles();
+    String[] files = repos.get(proj).entries(true);
     for(int x = 0; x < files.length && file == null; x++){
-      /* See if we get a match */
-      if(files[x].isFile()){
-        /* Loop index names */
-        for(int i = 0; i < INDEX_NAMES.length && file == null; i++){
-          /* Loop extensions */
-          for(int e = 0; e < INDEX_EXTS.length && file == null; e++){
-            String f = INDEX_NAMES[i] + "." + INDEX_EXTS[e];
-            if(files[x].getName().toLowerCase().equals(f)){
-              file = files[x];
-              ext = e;
-              break;
-            }
+      File test = new File(files[x]);
+      /* Loop index names */
+      for(int i = 0; i < INDEX_NAMES.length && file == null; i++){
+        /* Loop extensions */
+        for(int e = 0; e < INDEX_EXTS.length && file == null; e++){
+          String f = INDEX_NAMES[i] + "." + INDEX_EXTS[e];
+          if(test.getName().toLowerCase().equals(f)){
+            file = test;
+            ext = e;
+            break;
           }
         }
       }
@@ -414,7 +394,7 @@ public class PageBuilder{
     os.write("</nav>".getBytes());
     /* Fill out table */
     /* TODO: Not sure if tab character is a safe delimiter. */
-    String[] logs = Git.gitLog(repos.get(proj), page * 16, 16, "\t");
+    String[] logs = repos.get(proj).log(page * 16, 16, "\t");
     os.write("<table>".getBytes());
     for(int x = 0; x < logs.length; x++){
       String log[] = logs[x].split("\t");
@@ -468,7 +448,7 @@ public class PageBuilder{
     os.write(("<a href=\"" + pre + "/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
     os.write("</nav>".getBytes());
     /* Generate details */
-    String[] details = Git.gitCommit(repos.get(proj), commit);
+    String[] details = repos.get(proj).commit(commit);
     /* Make sure they were generated! */
     if(details.length != 11){
       os.write(indexBad);
@@ -516,7 +496,7 @@ public class PageBuilder{
     os.write(("<a href=\"" + pre + "/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
     os.write("</nav>".getBytes());
     /* Generate details */
-    String diff = Git.gitDiff(repos.get(proj), commit);
+    String diff = repos.get(proj).diff(commit);
     os.write("<pre><code>".getBytes());
     os.write(sanitize(diff).getBytes());
     os.write("</code></pre>".getBytes());
@@ -617,7 +597,7 @@ public class PageBuilder{
     os.write(("<description>RSS feed for commits to " + proj + ".</description>").getBytes());
     os.write(("<link>" + url + pre + "/" + proj + "</link>").getBytes());
     /* TODO: Not sure if tab character is a safe delimiter. */
-    String[] logs = Git.gitLog(repos.get(proj), 0, 16, "\t");
+    String[] logs = repos.get(proj).log(0, 16, "\t");
     for(int x = 0; x < logs.length; x++){
       String log[] = logs[x].split("\t");
       if(log.length == 5 && Git.validCommit(log[0])){
