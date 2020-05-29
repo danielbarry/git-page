@@ -98,6 +98,7 @@ public class Git{
 
   private File dir;
   private IndexEntry[] entries;
+  private HashMap<String, String> refs;
   private HashMap<String, Tree> trees;
   private HashMap<String, Commit> commits;
   private HashMap<String, Blob> blobs;
@@ -112,10 +113,12 @@ public class Git{
   public Git(File dir){
     this.dir = dir;
     this.entries = null;
+    this.refs = new HashMap<String, String>();
     this.trees = new HashMap<String, Tree>();
     this.commits = new HashMap<String, Commit>();
     this.blobs = new HashMap<String, Blob>();
     readIndex();
+    readRefs(new File(dir.getAbsolutePath() + "/.git/refs"), "");
     readObjects();
   }
 
@@ -192,6 +195,33 @@ public class Git{
     }
     /* Get digest */
     String dig = getHashRaw(data, (data.length - 1) - GIT_HASH_DIGEST_RAW);
+  }
+
+  /**
+   * readRefs()
+   *
+   * Recursively read the references and store in a mapping.
+   *
+   * @param d The directory to read for references.
+   * @param pre The string prefix for the reference.
+   **/
+  private void readRefs(File d, String pre){
+    /* Make sure it's readable */
+    if(d.exists() && d.canRead()){
+      /* Do we need to keep searching? */
+      if(d.isDirectory()){
+        File[] childs = d.listFiles();
+        for(int x = 0; x < childs.length; x++){
+          readRefs(childs[x], d.getName() + '_');
+        }
+      /* Found a reference, add it */
+      }else{
+        byte data[] = readFile(d, -1);
+        refs.put(pre + d.getName(), getHash(data, 0));
+      }
+    }else{
+      Main.warn("Unable to read reference '" + d.toString() + "'");
+    }
   }
 
 
