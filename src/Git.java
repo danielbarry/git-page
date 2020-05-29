@@ -396,6 +396,19 @@ public class Git{
   }
 
   /**
+   * getHash()
+   *
+   * Get a hash value from a raw data stream.
+   *
+   * @param data The data buffer to be read.
+   * @param i The offset into the data stream to be converted.
+   * @return The hash value retrieved.
+   **/
+  private static String getHash(byte[] data, int i){
+    return new String(data, i, GIT_HASH_DIGEST_STR);
+  }
+
+  /**
    * readFile()
    *
    * Read binary file from disk and return binary array.
