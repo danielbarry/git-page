@@ -31,6 +31,31 @@ browser, otherwise offer the ability to view them raw.
 * Ability to download a snapshot of the repository - This would likely be
 checked out at the master branch and pre-zipped to save on bandwidth.
 
+## Project Structure
+
+```
+                +--------------+        +--------------+
+                |     Main     |<-------+     JSON     |
+                +-----+--+-----+        +--------------+
+                      |  |
+             +--------+  +--------+
+             |                    |
+             v                    v
+    +--------------+        +--------------+
+    |    Server    |        |   Maintain   |
+    +--------+-----+        +--------------+
+             |
+             v
+    +--------------+
+    |  PageBuilder |
+    +--------+-----+
+             |
+             v
+    +--------------+
+    |      Git     |
+    +--------------+
+```
+
 ## Contributing
 
 Fork the project and submit merge requests. Otherwise email the author your
