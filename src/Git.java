@@ -261,48 +261,61 @@ public class Git{
                 trees.put(objectHash, t);
                 break;
               case "commit" :
-                Main.log("Commit");//TODO
-                System.out.println(new String(buff, 0, len));//TODO
                 Commit c = new Commit();
-                /* Read tree */
-                buffPtr += getString(buff, buffPtr, ' ').length() + 1;
-                c.tree = getString(buff, buffPtr, '\n');
-                buffPtr += c.tree.length() + 1;
-                System.out.println("tree -> " + c.tree);//TODO
-                /* Read parent */
-                String parent = getString(buff, buffPtr, ' ');
-                buffPtr += parent.length() + 1;
-                c.parent = getString(buff, buffPtr, '\n');
-                buffPtr += c.parent.length() + 1;
-                System.out.println("parent -> " + c.parent);//TODO
-                /* Read author */
-                buffPtr += getString(buff, buffPtr, ' ').length() + 1;
-                c.author = getString(buff, buffPtr, '<');
-                System.out.println("author -> " + c.author);//TODO
-                buffPtr += c.author.length() + 1;
-                c.author_email = getString(buff, buffPtr, '>');
-                System.out.println("author_email -> " + c.author_email);//TODO
-                buffPtr += c.author_email.length() + 2;
-                String authorDate = getString(buff, buffPtr, ' ');
-                String authorTime = getString(buff, buffPtr, '\n');
-                buffPtr += authorDate.length() + 1 + authorTime.length() + 1;
-                c.author_date = Calendar.getInstance(TimeZone.getTimeZone(authorTime));
-                c.author_date.setTimeInMillis(Long.parseLong(authorDate) * 1000L);
-                System.out.println("author_date -> " + c.author_date.getTime());//TODO
-                /* Read committer */
-                buffPtr += getString(buff, buffPtr, ' ').length() + 1;
-                c.commit = getString(buff, buffPtr, '<');
-                System.out.println("commit -> " + c.commit);//TODO
-                buffPtr += c.commit.length() + 1;
-                c.commit_email = getString(buff, buffPtr, '>');
-                System.out.println("commit_email -> " + c.commit_email);//TODO
-                buffPtr += c.commit_email.length() + 2;
-                String commitDate = getString(buff, buffPtr, ' ');
-                String commitTime = getString(buff, buffPtr, '\n');
-                buffPtr += commitDate.length() + 1 + commitTime.length() + 1;
-                c.commit_date = Calendar.getInstance(TimeZone.getTimeZone(commitTime));
-                c.commit_date.setTimeInMillis(Long.parseLong(commitDate) * 1000L);
-                System.out.println("commit_date -> " + c.commit_date.getTime());//TODO
+                /* Read header values until blank line */
+                while(buffPtr < len && buffPtr < buff.length){
+                  /* Read entire line and skip it */
+                  String line = getString(buff, buffPtr, '\n');
+                  buffPtr += line.length() + 1;
+                  /* Check if blank line found, go to next stage */
+                  if(line.length() <= 0){
+                    break;
+                  }
+                  /* Get line label */
+                  String label = getString(line.getBytes(), 0, ' ');
+                  line = line.substring(label.length() + 1);
+                  /* Figure out which header value we process */
+                  switch(label){
+                    case "tree" :
+                      c.tree = line;
+                      break;
+                    case "parent" :
+                      c.parent = line;
+                      break;
+                    case "author" :
+                      c.author = line.substring(0, line.indexOf('<'));
+                      c.author_email = line.substring(
+                        line.indexOf('<') + 1, line.indexOf('>')
+                      );
+                      c.author_date = Calendar.getInstance(
+                        TimeZone.getTimeZone(line.substring(line.lastIndexOf(' ')))
+                      );
+                      c.author_date.setTimeInMillis(
+                        Long.parseLong(
+                          line.substring(line.indexOf('>') + 2,
+                          line.lastIndexOf(' ')
+                        )
+                      ) * 1000L);
+                      break;
+                    case "committer" :
+                      c.commit = line.substring(0, line.indexOf('<'));
+                      c.commit_email = line.substring(
+                        line.indexOf('<') + 1, line.indexOf('>')
+                      );
+                      c.commit_date = Calendar.getInstance(
+                        TimeZone.getTimeZone(line.substring(line.lastIndexOf(' ')))
+                      );
+                      c.commit_date.setTimeInMillis(
+                        Long.parseLong(
+                          line.substring(line.indexOf('>') + 2,
+                          line.lastIndexOf(' ')
+                        )
+                      ) * 1000L);
+                      break;
+                  }
+                }
+                /* Set the subject */
+                c.subject = getString(buff, buffPtr, '\n');
                 break;
               case "blob" :
                 Main.log("Blob");//TODO
