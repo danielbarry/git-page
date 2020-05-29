@@ -154,7 +154,10 @@ public class Git{
     /* Search for the entries */
     entries = new IndexEntry[(int)num];
     int ePtr = 0;
-    while(dataPtr + GIT_INDEX_ENTRY_LEN < data.length - GIT_HASH_DIGEST_RAW){
+    while(
+      dataPtr + GIT_INDEX_ENTRY_LEN < data.length - GIT_HASH_DIGEST_RAW &&
+      ePtr < num
+    ){
       entries[ePtr] = new IndexEntry();
       int entryStart = dataPtr;
       /* Read standard entry header */
