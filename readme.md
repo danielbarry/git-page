@@ -22,6 +22,10 @@ offer simplicity, control and RSS feeds about updates.
 
 ## Future Planned Features
 
+* Bypass CLI wrapper - Running a process from within Java is quite slow,
+especially when the data we are retrieving is quite simple. It should be
+possible to write a very basic read-only Git client for retrieving the data of
+interest.
 * Display (text-based) files - Attempt to display human read-able files in the
 browser, otherwise offer the ability to view them raw.
 * Ability to download a snapshot of the repository - This would likely be
