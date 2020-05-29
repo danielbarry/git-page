@@ -148,11 +148,11 @@ public class Git{
    * @return The String value retrieved.
    **/
   private static String getString(byte[] data, int i){
-    int e = 0;
-    while(e < data.length && e != '\0'){
+    int e = i;
+    while(e < data.length && data[e] != '\0'){
       ++e;
     }
-    return new String(data, i, e);
+    return new String(data, i, e - i);
   }
 
   /**
