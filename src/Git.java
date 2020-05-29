@@ -258,10 +258,11 @@ public class Git{
                 }
                 /* Store tree entries in tree and add tree to map */
                 t.entries = teArr.toArray(new TreeEntry[0]);
-                trees.put(objectHash, t);
+                trees.put(t.hash, t);
                 break;
               case "commit" :
                 Commit c = new Commit();
+                c.hash = objectHash;
                 /* Read header values until blank line */
                 while(buffPtr < len && buffPtr < buff.length){
                   /* Read entire line and skip it */
@@ -316,7 +317,7 @@ public class Git{
                 }
                 /* Set the subject and store the commit */
                 c.subject = getString(buff, buffPtr, '\n');
-                commits.put(objectHash, c);
+                commits.put(c.hash, c);
                 break;
               case "blob" :
                 /* TODO: Implement blobs. */
