@@ -1,6 +1,7 @@
 package b.gp;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 
@@ -11,6 +12,35 @@ import java.io.IOException;
  **/
 public class Git{
   private static final int GIT_MAX_INPUT = 65536;
+
+  /**
+   * readFile()
+   *
+   * Read binary file from disk and return binary array.
+   *
+   * @param file The file to be read.
+   * @param len The maximum number of bytes to be read, if set to a number less
+   * than zero no limit is set.
+   * @return The byte array containing the file, otherwise NULL.
+   **/
+  private static byte[] readFile(File file, int len){
+    byte[] buff = null;
+    try{
+      FileInputStream fis = new FileInputStream(file);
+      /* If we have been told to limit then limit */
+      if(len >= 0){
+        len = file.length() < len ? (int)(file.length()) : len;
+      }else{
+        len = (int)(file.length());
+      }
+      buff = new byte[len];
+      fis.read(buff);
+      fis.close();
+    }catch(IOException e){
+      buff = null;
+    }
+    return buff;
+  }
 
   /**
    * gitLog()
