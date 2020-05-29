@@ -116,7 +116,7 @@ public class Git{
       dataPtr += GIT_HASH_DIGEST_RAW;
       entries[ePtr].flags = getShort(data, dataPtr);
       dataPtr += GIT_INDEX_INT_LEN;
-      entries[ePtr].path = getString(data, dataPtr);
+      entries[ePtr].path = getString(data, dataPtr, '\0');
       dataPtr += entries[ePtr].path.length();
       /* Finally, increase the counter */
       ++ePtr;
@@ -138,11 +138,12 @@ public class Git{
    *
    * @param data The data buffer to be read.
    * @param i The offset into the data stream to be converted.
+   * @param d The delimiting character.
    * @return The String value retrieved.
    **/
-  private static String getString(byte[] data, int i){
+  private static String getString(byte[] data, int i, char d){
     int e = i;
-    while(e < data.length && data[e] != '\0'){
+    while(e < data.length && data[e] != d){
       ++e;
     }
     return new String(data, i, e - i);
