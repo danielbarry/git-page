@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  * Git.java
@@ -33,6 +34,12 @@ public class Git{
   }
 
   private static final int GIT_MAX_INPUT = 65536;
+  private static final int GIT_INDEX_VAR_LEN = 4;
+  private static final int GIT_INDEX_INT_LEN = 2;
+  private static final int GIT_HASH_DIGEST_RAW = 20;
+  private static final int GIT_INDEX_ENTRY_LEN = (GIT_INDEX_VAR_LEN * 10) +
+                                                  GIT_HASH_DIGEST_RAW     +
+                                                  GIT_INDEX_VAR_LEN;
 
   private File dir;
   private IndexEntry[] entries;
@@ -56,6 +63,68 @@ public class Git{
    **/
   private void readIndex(){
     entries = null;
+  }
+
+  /**
+   * getString()
+   *
+   * Get a String value from a raw data stream.
+   *
+   * @param data The data buffer to be read.
+   * @param i The offset into the data stream to be converted.
+   * @return The String value retrieved.
+   **/
+  private static String getString(byte[] data, int i){
+    int e = 0;
+    while(e < data.length && e != '\0'){
+      ++e;
+    }
+    return new String(data, i, e);
+  }
+
+  /**
+   * getShort()
+   *
+   * Get a short value from a raw data stream.
+   *
+   * @param data The data buffer to be read.
+   * @param i The offset into the data stream to be converted.
+   * @return The short value retrieved.
+   **/
+  private static int getShort(byte[] data, int i){
+    byte[] var = new byte[GIT_INDEX_INT_LEN];
+    System.arraycopy(data, i, var, 0, GIT_INDEX_INT_LEN);
+    return new BigInteger(1, var).intValue();
+  }
+
+  /**
+   * getLong()
+   *
+   * Get a long value from a raw data stream.
+   *
+   * @param data The data buffer to be read.
+   * @param i The offset into the data stream to be converted.
+   * @return The long value retrieved.
+   **/
+  private static long getLong(byte[] data, int i){
+    byte[] var = new byte[GIT_INDEX_VAR_LEN];
+    System.arraycopy(data, i, var, 0, GIT_INDEX_VAR_LEN);
+    return new BigInteger(1, var).longValue();
+  }
+
+  /**
+   * getHash()
+   *
+   * Get a hash value from a raw data stream.
+   *
+   * @param data The data buffer to be read.
+   * @param i The offset into the data stream to be converted.
+   * @return The hash value retrieved.
+   **/
+  private static String getHash(byte[] data, int i){
+    byte[] var = new byte[GIT_HASH_DIGEST_RAW];
+    System.arraycopy(data, i, var, 0, GIT_HASH_DIGEST_RAW);
+    return new BigInteger(1, var).toString(16);
   }
 
   /**
