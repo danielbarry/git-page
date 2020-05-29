@@ -112,7 +112,7 @@ public class Git{
       dataPtr += GIT_INDEX_VAR_LEN;
       entries[ePtr].size = getLong(data, dataPtr);
       dataPtr += GIT_INDEX_VAR_LEN;
-      entries[ePtr].hash = getHash(data, dataPtr);
+      entries[ePtr].hash = getHashRaw(data, dataPtr);
       dataPtr += GIT_HASH_DIGEST_RAW;
       entries[ePtr].flags = getShort(data, dataPtr);
       dataPtr += GIT_INDEX_INT_LEN;
@@ -128,7 +128,7 @@ public class Git{
       Main.warn("Bad number of entries expected: " + num + ", got: " + ePtr);
     }
     /* Get digest */
-    String dig = getHash(data, (data.length - 1) - GIT_HASH_DIGEST_RAW);
+    String dig = getHashRaw(data, (data.length - 1) - GIT_HASH_DIGEST_RAW);
   }
 
   /**
@@ -180,7 +180,7 @@ public class Git{
   }
 
   /**
-   * getHash()
+   * getHashRaw()
    *
    * Get a hash value from a raw data stream.
    *
@@ -188,7 +188,7 @@ public class Git{
    * @param i The offset into the data stream to be converted.
    * @return The hash value retrieved.
    **/
-  private static String getHash(byte[] data, int i){
+  private static String getHashRaw(byte[] data, int i){
     byte[] var = new byte[GIT_HASH_DIGEST_RAW];
     System.arraycopy(data, i, var, 0, GIT_HASH_DIGEST_RAW);
     return new BigInteger(1, var).toString(16);
