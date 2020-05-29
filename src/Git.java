@@ -84,6 +84,7 @@ public class Git{
    * A data structure for the blobs.
    **/
   private class Blob{
+    /* TODO: Figure out valid blob structure. */
   }
 
   private static final int GIT_MAX_INPUT = 65536;
@@ -318,7 +319,6 @@ public class Git{
                 commits.put(objectHash, c);
                 break;
               case "blob" :
-                Main.log("Blob");//TODO
                 /* TODO: Implement blobs. */
                 break;
               default :
