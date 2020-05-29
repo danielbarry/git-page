@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.TimeZone;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
@@ -64,6 +66,16 @@ public class Git{
    * A data structure for the commits.
    **/
   private class Commit{
+    public String hash;
+    public String tree;
+    public String parent;
+    public String author;
+    public String author_email;
+    public Calendar author_date;
+    public String commit;
+    public String commit_email;
+    public Calendar commit_date;
+    public String subject;
   }
 
   /**
@@ -223,12 +235,12 @@ public class Git{
             int buffPtr = 0;
             String type = getString(buff, buffPtr, ' ');
             buffPtr += type.length() + 1;
+            String num = getString(buff, buffPtr, '\0');
+            buffPtr += num.length() + 1;
             switch(type){
               case "tree" :
                 Tree t = new Tree();
                 t.hash = objectHash;
-                String num = getString(buff, buffPtr, '\0');
-                buffPtr += num.length() + 1;
                 /* Check we have the minimum for another loop */
                 ArrayList<TreeEntry> teArr = new ArrayList<TreeEntry>();
                 while(buffPtr + GIT_INDEX_INT_LEN < len && buffPtr < buff.length){
@@ -250,6 +262,47 @@ public class Git{
                 break;
               case "commit" :
                 Main.log("Commit");//TODO
+                System.out.println(new String(buff, 0, len));//TODO
+                Commit c = new Commit();
+                /* Read tree */
+                buffPtr += getString(buff, buffPtr, ' ').length() + 1;
+                c.tree = getString(buff, buffPtr, '\n');
+                buffPtr += c.tree.length() + 1;
+                System.out.println("tree -> " + c.tree);//TODO
+                /* Read parent */
+                String parent = getString(buff, buffPtr, ' ');
+                buffPtr += parent.length() + 1;
+                c.parent = getString(buff, buffPtr, '\n');
+                buffPtr += c.parent.length() + 1;
+                System.out.println("parent -> " + c.parent);//TODO
+                /* Read author */
+                buffPtr += getString(buff, buffPtr, ' ').length() + 1;
+                c.author = getString(buff, buffPtr, '<');
+                System.out.println("author -> " + c.author);//TODO
+                buffPtr += c.author.length() + 1;
+                c.author_email = getString(buff, buffPtr, '>');
+                System.out.println("author_email -> " + c.author_email);//TODO
+                buffPtr += c.author_email.length() + 2;
+                String authorDate = getString(buff, buffPtr, ' ');
+                String authorTime = getString(buff, buffPtr, '\n');
+                buffPtr += authorDate.length() + 1 + authorTime.length() + 1;
+                c.author_date = Calendar.getInstance(TimeZone.getTimeZone(authorTime));
+                c.author_date.setTimeInMillis(Long.parseLong(authorDate) * 1000L);
+                System.out.println("author_date -> " + c.author_date.getTime());//TODO
+                /* Read committer */
+                buffPtr += getString(buff, buffPtr, ' ').length() + 1;
+                c.commit = getString(buff, buffPtr, '<');
+                System.out.println("commit -> " + c.commit);//TODO
+                buffPtr += c.commit.length() + 1;
+                c.commit_email = getString(buff, buffPtr, '>');
+                System.out.println("commit_email -> " + c.commit_email);//TODO
+                buffPtr += c.commit_email.length() + 2;
+                String commitDate = getString(buff, buffPtr, ' ');
+                String commitTime = getString(buff, buffPtr, '\n');
+                buffPtr += commitDate.length() + 1 + commitTime.length() + 1;
+                c.commit_date = Calendar.getInstance(TimeZone.getTimeZone(commitTime));
+                c.commit_date.setTimeInMillis(Long.parseLong(commitDate) * 1000L);
+                System.out.println("commit_date -> " + c.commit_date.getTime());//TODO
                 break;
               case "blob" :
                 Main.log("Blob");//TODO
