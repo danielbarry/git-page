@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.zip.DataFormatException;
+import java.util.zip.Inflater;
 
 /**
  * Git.java
@@ -100,6 +103,7 @@ public class Git{
     this.commits = new HashMap<String, Commit>();
     this.blobs = new HashMap<String, Blob>();
     readIndex();
+    readObjects();
   }
 
   /**
@@ -175,6 +179,90 @@ public class Git{
     }
     /* Get digest */
     String dig = getHashRaw(data, (data.length - 1) - GIT_HASH_DIGEST_RAW);
+  }
+
+
+  /**
+   * readObjects()
+   *
+   * Read the objects and update their respective lists.
+   **/
+  private void readObjects(){
+    commits = null;
+    /* Setup common variables */
+    byte[] buff = new byte[GIT_MAX_INPUT];
+    /* Get list of objects and loop over them */
+    File[] objectsPre = new File(dir.getAbsolutePath() + "/.git/objects").listFiles();
+    for(int x = 0; x < objectsPre.length; x++){
+      File d = objectsPre[x];
+      /* Make sure we have something valid */
+      if(d.exists() && d.isDirectory() && d.canRead()){
+        String pre = d.getName();
+        /* Now loop over actual objects */
+        File[] objectsPost = d.listFiles();
+        for(int y = 0; y < objectsPost.length; y++){
+          File o = objectsPost[y];
+          /* Make sure we have a valid file now */
+          if(o.exists() && o.isFile() && o.canRead()){
+            String objectHash = pre + o.getName();
+            byte[] data = readFile(o, -1);
+            /* Decompress the object */
+            Inflater decomp = new Inflater();
+            decomp.setInput(data);
+            int len = 0;
+            try{
+              len = decomp.inflate(buff);
+            }catch(DataFormatException e){
+              Main.warn("Error whilst decompressing data");
+            }
+            /* Check if we finished */
+            if(!decomp.finished()){
+              Main.warn("Decompression failed, object too long");
+            }
+            /* Parse the object */
+            int buffPtr = 0;
+            String type = getString(buff, buffPtr, ' ');
+            buffPtr += type.length() + 1;
+            switch(type){
+              case "tree" :
+                Tree t = new Tree();
+                t.hash = objectHash;
+                String num = getString(buff, buffPtr, '\0');
+                buffPtr += num.length() + 1;
+                /* Check we have the minimum for another loop */
+                ArrayList<TreeEntry> teArr = new ArrayList<TreeEntry>();
+                while(buffPtr + GIT_INDEX_INT_LEN < len && buffPtr < buff.length){
+                  TreeEntry te = new TreeEntry();
+                  /* Read entry */
+                  String mode = getString(buff, buffPtr, ' ');
+                  buffPtr += mode.length() + 1;
+                  te.mode = Integer.parseInt(mode, 8);
+                  te.name = getString(buff, buffPtr, '\0');
+                  buffPtr += te.name.length() + 1;
+                  te.hash = getHashRaw(buff, buffPtr);
+                  buffPtr += GIT_HASH_DIGEST_RAW;
+                  /* Store entry */
+                  teArr.add(te);
+                }
+                /* Store tree entries in tree and add tree to map */
+                t.entries = teArr.toArray(new TreeEntry[0]);
+                trees.put(objectHash, t);
+                break;
+              case "commit" :
+                Main.log("Commit");//TODO
+                break;
+              case "blob" :
+                Main.log("Blob");//TODO
+                break;
+              default :
+                Main.warn("Unknown object type");
+                break;
+            }
+            /* TODO: Add to list of commits. */
+          }
+        }
+      }
+    }
   }
 
   /**
