@@ -200,7 +200,6 @@ public class Git{
    * Read the objects and update their respective lists.
    **/
   private void readObjects(){
-    commits = null;
     /* Setup common variables */
     byte[] buff = new byte[GIT_MAX_INPUT];
     /* Get list of objects and loop over them */
