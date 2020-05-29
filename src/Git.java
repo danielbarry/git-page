@@ -11,9 +11,31 @@ import java.io.IOException;
  * Wrapper for the git command line.
  **/
 public class Git{
+  /**
+   * IndexEntry.Git.java
+   *
+   * A data structure for the index entries.
+   **/
+  private class IndexEntry{
+    public long ctime_s;
+    public long ctime_n;
+    public long mtime_s;
+    public long mtime_n;
+    public long dev;
+    public long ino;
+    public long mode;
+    public long uid;
+    public long gid;
+    public long size;
+    public String hash;
+    public int flags;
+    public String path;
+  }
+
   private static final int GIT_MAX_INPUT = 65536;
 
   private File dir;
+  private IndexEntry[] entries;
 
   /**
    * Git()
@@ -24,6 +46,16 @@ public class Git{
    **/
   public Git(File dir){
     this.dir = dir;
+    readIndex();
+  }
+
+  /**
+   * readIndex()
+   *
+   * Read the Git index and update the entries list.
+   **/
+  private void readIndex(){
+    entries = null;
   }
 
   /**
