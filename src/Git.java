@@ -469,17 +469,16 @@ public class Git{
   }
 
   /**
-   * gitLog()
+   * log()
    *
    * Get a list of commits, otherwise an empty list.
    *
-   * @param dir The directory of the repository.
    * @param start The start of the commits to be displayed.
    * @param count The number of commits to be displayed.
    * @param sep The separator to be used.
    * @return List of commits, one per line.
    **/
-  public static String[] gitLog(File dir, int start, int count, String sep){
+  public String[] log(int start, int count, String sep){
     byte[] buff = exec(
       dir,
       new String[]{
@@ -500,15 +499,14 @@ public class Git{
   }
 
   /**
-   * gitCommit()
+   * commit()
    *
    * Get specific information about a given commit.
    *
-   * @param dir The directory of the repository.
    * @param commit The commit name.
    * @return The commit information.
    **/
-  public static String[] gitCommit(File dir, String commit){
+  public String[] commit(String commit){
     /* Validate the commit to ensure no arbitrary command execution */
     if(!validCommit(commit)){
       Main.warn("Bad commit string");
@@ -533,15 +531,14 @@ public class Git{
   }
 
   /**
-   * gitDiff()
+   * diff()
    *
    * Get a code difference for a given commit.
    *
-   * @param dir The directory of the repository.
    * @param commit The commit name.
    * @return The raw diff.
    **/
-  public static String gitDiff(File dir, String commit){
+  public String diff(String commit){
     /* Validate the commit to ensure no arbitrary command execution */
     if(!validCommit(commit)){
       Main.warn("Bad commit string");
@@ -568,15 +565,16 @@ public class Git{
   }
 
   /**
-   * gitFetch()
+   * fetch()
    *
    * Fetch changes from the default origin repository.
    *
-   * @param dir The directory of the repository.
    * @return The raw output lines of the fetch.
    **/
-  public static String gitFetch(File dir){
-    /* TODO: Make sure this operation is only run by authorized classes. */
+  public String fetch(){
+    if(!pull){
+      return "";
+    }
     byte[] buff = exec(
       dir,
       new String[]{
@@ -593,15 +591,16 @@ public class Git{
   }
 
   /**
-   * gitPull()
+   * pull()
    *
    * Pull changes from the default origin repository.
    *
-   * @param dir The directory of the repository.
    * @return The raw output lines of the pull.
    **/
-  public static String gitPull(File dir){
-    /* TODO: Make sure this operation is only run by authorized classes. */
+  public String pull(){
+    if(!pull){
+      return "";
+    }
     byte[] buff = exec(
       dir,
       new String[]{
