@@ -13,6 +13,19 @@ import java.io.IOException;
 public class Git{
   private static final int GIT_MAX_INPUT = 65536;
 
+  private File dir;
+
+  /**
+   * Git()
+   *
+   * Initialize the Git class and setup Git for read-only operations.
+   *
+   * @param dir The directory of the Git repository.
+   **/
+  public Git(File dir){
+    this.dir = dir;
+  }
+
   /**
    * readFile()
    *
