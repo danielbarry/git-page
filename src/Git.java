@@ -63,6 +63,79 @@ public class Git{
    **/
   private void readIndex(){
     entries = null;
+    /* Attempt to read the index */
+    int dataPtr = 0;
+    byte[] data = readFile(new File(dir.getAbsolutePath() + "/.git/index"), -1);
+    /* Make sure we read something and it seems valid */
+    if(data == null || data.length < GIT_INDEX_VAR_LEN * 3){
+      Main.warn("Unable to load git index");
+      return;
+    }
+    /* Get header variable signature */
+    String sig = new String(data, dataPtr, GIT_INDEX_VAR_LEN);
+    dataPtr += GIT_INDEX_VAR_LEN;
+    /* Get header variable version */
+    long ver = getLong(data, dataPtr);
+    dataPtr += GIT_INDEX_VAR_LEN;
+    /* Get header variable entry number */
+    long num = getLong(data, dataPtr);
+    dataPtr += GIT_INDEX_VAR_LEN;
+    /* Check the header data */
+    if(!sig.equals("DIRC") || ver != 2){
+      Main.warn("Bad index signature or version");
+      return;
+    }
+    /* Search for the entries */
+    entries = new IndexEntry[(int)num];
+    int ePtr = 0;
+    while(dataPtr < data.length - GIT_HASH_DIGEST_RAW && ePtr < entries.length){
+      /* Ensure the entry is the minimum length */
+      if(dataPtr + GIT_INDEX_ENTRY_LEN < data.length){
+        entries[ePtr] = new IndexEntry();
+        int entryStart = dataPtr;
+        /* Read standard entry header */
+        entries[ePtr].ctime_s = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].ctime_n = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].mtime_s = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].mtime_n = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].dev = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].ino = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].mode = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].uid = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].gid = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].size = getLong(data, dataPtr);
+        dataPtr += GIT_INDEX_VAR_LEN;
+        entries[ePtr].hash = getHash(data, dataPtr);
+        dataPtr += GIT_HASH_DIGEST_RAW;
+        entries[ePtr].flags = getShort(data, dataPtr);
+        dataPtr += GIT_INDEX_INT_LEN;
+        entries[ePtr].path = getString(data, dataPtr);
+        dataPtr += entries[ePtr].path.length();
+        /* Finally, increase the counter */
+        ++ePtr;
+        int entryLen = dataPtr - entryStart;
+        dataPtr += (((entryLen + 8) / 8) * 8) - entryLen;
+        ++dataPtr;
+      }else{
+        Main.warn("Possible corrupted index");
+        break;
+      }
+    }
+    /* Check that we loaded all the entries correctly */
+    if(ePtr != num){
+      Main.warn("Bad number of entries expected: " + num + ", got: " + ePtr);
+    }
+    /* Get digest */
+    String dig = getHash(data, (data.length - 1) - GIT_HASH_DIGEST_RAW);
   }
 
   /**
