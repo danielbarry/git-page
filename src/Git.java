@@ -97,6 +97,7 @@ public class Git{
                                                   GIT_INDEX_VAR_LEN;
 
   private File dir;
+  private boolean pull;
   private IndexEntry[] entries;
   private HashMap<String, String> refs;
   private HashMap<String, Tree> trees;
@@ -109,9 +110,12 @@ public class Git{
    * Initialize the Git class and setup Git for read-only operations.
    *
    * @param dir The directory of the Git repository.
+   * @param pull Whether this Git repository should pull when requested to do
+   * so.
    **/
-  public Git(File dir){
+  public Git(File dir, boolean pull){
     this.dir = dir;
+    this.pull = pull;
     this.entries = null;
     this.refs = new HashMap<String, String>();
     this.trees = new HashMap<String, Tree>();
