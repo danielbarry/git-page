@@ -472,6 +472,24 @@ public class Git{
   }
 
   /**
+   * entries()
+   *
+   * Get a list of entries being tracked by this repository.
+   *
+   * @param rootOnly If true, only root level entries are returned.
+   * @return A list of entries tracked by this repository.
+   **/
+  public String[] entries(boolean rootOnly){
+    ArrayList<String> ents = new ArrayList<String>();
+    for(int x = 0; x < entries.length; x++){
+      if(!rootOnly || (rootOnly && !entries[x].path.contains("/"))){
+        ents.add(dir.getAbsolutePath() + "/" + entries[x].path);
+      }
+    }
+    return ents.toArray(new String[0]);
+  }
+
+  /**
    * log()
    *
    * Get a list of commits, otherwise an empty list.
