@@ -272,6 +272,7 @@ public class Git{
             /* Check if we finished */
             if(!decomp.finished()){
               Main.warn("Decompression failed, object too long");
+              Main.log("Bad hash '" + objectHash + "'");
             }
             /* Parse the object */
             int buffPtr = 0;
