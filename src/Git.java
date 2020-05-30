@@ -569,7 +569,6 @@ public class Git{
       return new String();
     }
     byte[] buff = exec(
-      dir,
       new String[]{
         "git",
         "show",
@@ -600,7 +599,6 @@ public class Git{
       return "";
     }
     byte[] buff = exec(
-      dir,
       new String[]{
         "git",
         "fetch"
@@ -626,7 +624,6 @@ public class Git{
       return "";
     }
     byte[] buff = exec(
-      dir,
       new String[]{
         "git",
         "pull"
@@ -646,11 +643,10 @@ public class Git{
    * Execute a give command and return the output. Note that this command will
    * block until complete.
    *
-   * @param dir The working directory to execute the command.
    * @param cmd The command and parameters to be run.
    * @return The result of the command.
    **/
-  private static byte[] exec(File dir, String[] cmd){
+  private byte[] exec(String[] cmd){
     try{
       ProcessBuilder pb = new ProcessBuilder(cmd);
       pb.directory(dir);
