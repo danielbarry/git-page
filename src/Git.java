@@ -117,8 +117,10 @@ public class Git{
    * so.
    **/
   public Git(File dir, boolean pull){
+    /* Store variables internally */
     this.dir = dir;
     this.pull = pull;
+    /* Initialize one */
     this.entries = null;
     this.refs = new HashMap<String, String>();
     this.trees = new HashMap<String, Tree>();
@@ -126,6 +128,16 @@ public class Git{
     this.blobs = new HashMap<String, Blob>();
     this.pages = null;
     unpack();
+    update();
+  }
+
+  /**
+   * update()
+   *
+   * Update the RAM state of the repository. This is an expensive operation and
+   * should only be called after a pull.
+   **/
+  public void update(){
     readIndex();
     readRefs(new File(dir.getAbsolutePath() + "/.git/refs"), "");
     readObjects();

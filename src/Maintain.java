@@ -62,7 +62,9 @@ public class Maintain extends Thread{
             Main.log("Pulling changes for '" + key + "'");
             /* Pull changes if there are some */
             repos.get(key).pull();
-            /* TODO: Perform update. */
+            Main.log("Updating internals for '" + key + "'");
+            /* Perform update */
+            repos.get(key).update();
           }
         }catch(Exception e){
           Main.warn("Error checking repository '" + key + "'");
