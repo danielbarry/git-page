@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.TimeZone;
 import java.util.zip.DataFormatException;
@@ -71,10 +72,10 @@ public class Git{
     public String parent;
     public String author;
     public String author_email;
-    public Calendar author_date;
+    public Date author_date;
     public String commit;
     public String commit_email;
-    public Calendar commit_date;
+    public Date commit_date;
     public String subject;
   }
 
@@ -393,15 +394,16 @@ public class Git{
                       c.author_email = PageBuilder.sanitize(line.substring(
                         line.indexOf('<') + 1, line.indexOf('>')
                       ));
-                      c.author_date = Calendar.getInstance(
+                      Calendar aCal = Calendar.getInstance(
                         TimeZone.getTimeZone(line.substring(line.lastIndexOf(' ')))
                       );
-                      c.author_date.setTimeInMillis(
+                      aCal.setTimeInMillis(
                         Long.parseLong(
                           line.substring(line.indexOf('>') + 2,
                           line.lastIndexOf(' ')
                         )
                       ) * 1000L);
+                      c.author_date = aCal.getTime();
                       break;
                     case "committer" :
                       c.commit = PageBuilder.sanitize(
@@ -410,15 +412,16 @@ public class Git{
                       c.commit_email = PageBuilder.sanitize(line.substring(
                         line.indexOf('<') + 1, line.indexOf('>')
                       ));
-                      c.commit_date = Calendar.getInstance(
+                      Calendar cCal = Calendar.getInstance(
                         TimeZone.getTimeZone(line.substring(line.lastIndexOf(' ')))
                       );
-                      c.commit_date.setTimeInMillis(
+                      cCal.setTimeInMillis(
                         Long.parseLong(
                           line.substring(line.indexOf('>') + 2,
                           line.lastIndexOf(' ')
                         )
                       ) * 1000L);
+                      c.commit_date = cCal.getTime();
                       break;
                   }
                 }

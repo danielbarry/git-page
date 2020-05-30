@@ -410,7 +410,7 @@ public class PageBuilder{
           "<tr>" +
             "<td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
               logs[x].hash.substring(0, 7) + "</a></td>" +
-            "<td>" + logs[x].author_date.getTime().toString() + "</td>" +
+            "<td>" + logs[x].author_date.toString() + "</td>" +
             "<td>" + logs[x].author + "</td>" +
             "<td>" + subject + "</td>" +
           "</tr>";
@@ -465,13 +465,13 @@ public class PageBuilder{
     commitHTML += "<tr><td>Author Email</td><td>" +
       commit.author_email + "</td></tr>";
     commitHTML += "<tr><td>Author Date</td><td>" +
-      commit.author_date.getTime().toString() + "</td></tr>";
+      commit.author_date.toString() + "</td></tr>";
     commitHTML += "<tr><td>Committer Name</td><td>" +
       commit.commit + "</td></tr>";
     commitHTML += "<tr><td>Committer Email</td><td>" +
       commit.commit_email + "</td></tr>";
     commitHTML += "<tr><td>Committer Date</td><td>" +
-      commit.commit_date.getTime().toString() + "</td></tr>";
+      commit.commit_date.toString() + "</td></tr>";
     commitHTML += "<tr><td>Subject</td><td>" +
       commit.subject + "</td></tr>";
     commitHTML += "</table>";
@@ -622,7 +622,7 @@ public class PageBuilder{
             "<description><![CDATA[<table>" +
               "<tr><td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
                 logs[x].hash + "</a></td></tr>" +
-              "<tr><td>" + logs[x].author_date.getTime().toString() + "</td></tr>" +
+              "<tr><td>" + logs[x].author_date.toString() + "</td></tr>" +
               "<tr><td>" + logs[x].author + "</td></tr>" +
               "<tr><td>" + logs[x].subject + "</td></tr>" +
             "</table>]]></description>" +
