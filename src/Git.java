@@ -707,7 +707,14 @@ public class Git{
       p.waitFor();
       InputStream is = p.getInputStream();
       int a = is.available();
-      byte[] buff = new byte[a < GIT_MAX_INPUT ? a : GIT_MAX_INPUT];
+      byte[] buff = null;
+      if(a > 0){
+        buff = new byte[a < GIT_MAX_INPUT ? a : GIT_MAX_INPUT];
+      }else{
+        is = p.getErrorStream();
+        a = is.available();
+        buff = new byte[a < GIT_MAX_INPUT ? a : GIT_MAX_INPUT];
+      }
       is.read(buff);
       return buff;
     }catch(InterruptedException e){
