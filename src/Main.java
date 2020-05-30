@@ -90,6 +90,7 @@ public class Main{
       }
       File d = new File(entry.get("dir").value());
       if(d.exists() && d.isDirectory() && d.canRead()){
+        log("Adding repository '" + d.getAbsolutePath() + "'");
         /* Get if we want the repo to be able to pull */
         boolean pull = entry.get("maintain") != null    &&
           entry.get("maintain").value() != null         &&
