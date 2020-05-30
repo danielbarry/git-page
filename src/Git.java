@@ -709,7 +709,6 @@ public class Git{
       int a = is.available();
       byte[] buff = new byte[a < GIT_MAX_INPUT ? a : GIT_MAX_INPUT];
       is.read(buff);
-      is.skip(is.available());
       return buff;
     }catch(InterruptedException e){
     }catch(IOException e){
