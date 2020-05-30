@@ -547,31 +547,11 @@ public class Git{
    *
    * Get specific information about a given commit.
    *
-   * @param commit The commit name.
-   * @return The commit information.
+   * @param hash The commit hash.
+   * @return The commit object, otherwise NULL.
    **/
-  public String[] commit(String commit){
-    /* Validate the commit to ensure no arbitrary command execution */
-    if(!validCommit(commit)){
-      Main.warn("Bad commit string");
-      return new String[]{};
-    }
-    byte[] buff = exec(
-      dir,
-      new String[]{
-        "git",
-        "log",
-        "--max-count=1",
-        "--pretty=format:%H%n%T%n%P%n%an%n%ae%n%aI%n%cn%n%ce%n%cI%n%D%n%s",
-        commit
-      }
-    );
-    if(buff != null){
-      return (new String(buff)).split("\n");
-    }else{
-      Main.warn("Command failed to run");
-      return new String[]{};
-    }
+  public Commit commit(String hash){
+    return commits.get(hash);
   }
 
   /**
