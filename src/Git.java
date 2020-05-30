@@ -95,6 +95,8 @@ public class Git{
   private static final int GIT_INDEX_ENTRY_LEN = (GIT_INDEX_VAR_LEN * 10) +
                                                   GIT_HASH_DIGEST_RAW     +
                                                   GIT_INDEX_VAR_LEN;
+  private static final int GIT_PAGE_SIZE = 16;
+  private static final int GIT_PAGE_MAX = 65536;
 
   private File dir;
   private boolean pull;
@@ -103,6 +105,7 @@ public class Git{
   private HashMap<String, Tree> trees;
   private HashMap<String, Commit> commits;
   private HashMap<String, Blob> blobs;
+  private ArrayList<Commit> pages;
 
   /**
    * Git()
@@ -121,9 +124,11 @@ public class Git{
     this.trees = new HashMap<String, Tree>();
     this.commits = new HashMap<String, Commit>();
     this.blobs = new HashMap<String, Blob>();
+    this.pages = null;
     readIndex();
     readRefs(new File(dir.getAbsolutePath() + "/.git/refs"), "");
     readObjects();
+    readPages(commits.get(refs.get("heads_master")));
   }
 
   /**
@@ -366,6 +371,26 @@ public class Git{
             /* TODO: Add to list of commits. */
           }
         }
+      }
+    }
+  }
+
+  /**
+   * readPages()
+   *
+   * Pre-compute the location of pages for this git repository.
+   *
+   * @param commit The starting commit to begin generating pages from.
+   **/
+  private void readPages(Commit commit){
+    pages = new ArrayList<Commit>();
+    /* Keep going until all hashes found or we exhaust resources */
+    for(int x = 0; commit != null && x < GIT_PAGE_MAX; x++){
+      /* Save this page */
+      pages.add(commit);
+      /* Jump forward */
+      for(int i = 0; commit != null && i < GIT_PAGE_SIZE; i++){
+        commit = commits.get(commit.parent);
       }
     }
   }
