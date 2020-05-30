@@ -424,43 +424,53 @@ public class PageBuilder{
    * @param os The output stream to be written to.
    * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
-   * @param commit The commit to display a summary for.
+   * @param hash The commit hash to display a summary for.
    **/
-  private void genCommit(OutputStream os, String pre, String proj, String commit) throws IOException{
+  private void genCommit(OutputStream os, String pre, String proj, String hash) throws IOException{
     /* Make sure the request params are valid */
     if(
       proj == null             ||
       !repos.containsKey(proj) ||
-      commit == null           ||
-      !Git.validCommit(commit)
+      hash == null           ||
+      !Git.validCommit(hash)
     ){
+      Main.warn("here");//TODO
       os.write(indexBad);
       return;
     }
     /* Generate pages navigation */
     os.write("<nav class=\"sub\">".getBytes());
-    os.write(("<a href=\"" + pre + "/" + proj + "/commit/" + commit + "\">Summary</a> ").getBytes());
-    os.write(("<a href=\"" + pre + "/" + proj + "/diff/" + commit + "\">Diff</a>").getBytes());
+    os.write(("<a href=\"" + pre + "/" + proj + "/commit/" + hash + "\">Summary</a> ").getBytes());
+    os.write(("<a href=\"" + pre + "/" + proj + "/diff/" + hash + "\">Diff</a>").getBytes());
     os.write("</nav>".getBytes());
     /* Generate details */
-    String[] details = repos.get(proj).commit(commit);
-    /* Make sure they were generated! */
-    if(details.length != 11){
+    Git.Commit commit = repos.get(proj).commit(hash);
+    /* Make sure it exists */
+    if(commit == null){
+      Main.warn("here");//TODO
       os.write(indexBad);
       return;
     }
     os.write("<table>".getBytes());
-    os.write(("<tr><td>Hash</td><td>"            + sanitize(details[ 0]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Tree Hash</td><td>"       + sanitize(details[ 1]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Parent Hashes</td><td>"   + sanitize(details[ 2]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Author Name</td><td>"     + sanitize(details[ 3]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Author Email</td><td>"    + sanitize(details[ 4]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Author Date</td><td>"     + sanitize(details[ 5]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Committer Name</td><td>"  + sanitize(details[ 6]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Committer Email</td><td>" + sanitize(details[ 7]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Committer Date</td><td>"  + sanitize(details[ 8]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Reference Names</td><td>" + sanitize(details[ 9]) + "</td></tr>").getBytes());
-    os.write(("<tr><td>Subject</td><td>"         + sanitize(details[10]) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Hash</td><td><a href=\"" + pre + "/" + proj + "/commit/" + commit.hash + "\">" +
+      commit.hash + "</a></td></tr>").getBytes());
+    os.write(("<tr><td>Tree</td><td>" + commit.tree + "</a></td></tr>").getBytes());
+    os.write(("<tr><td>Parents</td><td><a href=\"" + pre + "/" + proj + "/commit/" + commit.parent + "\">" +
+      commit.parent + "</a></td></tr>").getBytes());
+    os.write(("<tr><td>Author Name</td><td>" +
+      sanitize(commit.author) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Author Email</td><td>" +
+      sanitize(commit.author_email) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Author Date</td><td>" +
+      sanitize(commit.author_date.getTime().toString()) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Name</td><td>" +
+      sanitize(commit.commit) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Email</td><td>" +
+      sanitize(commit.commit_email) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Committer Date</td><td>" +
+      sanitize(commit.commit_date.getTime().toString()) + "</td></tr>").getBytes());
+    os.write(("<tr><td>Subject</td><td>" +
+      sanitize(commit.subject) + "</td></tr>").getBytes());
     os.write("</table>".getBytes());
   }
 
