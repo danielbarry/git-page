@@ -404,7 +404,7 @@ public class PageBuilder{
         os.write((
           "<tr>" +
             "<td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
-              logs[x].hash + "</a></td>" +
+              logs[x].hash.substring(0, 7) + "</a></td>" +
             "<td>" + logs[x].author_date.getTime().toString() + "</td>" +
             "<td>" + sanitize(logs[x].author) + "</td>" +
             "<td>" + sanitize(subject) + "</td>" +
