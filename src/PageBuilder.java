@@ -460,13 +460,13 @@ public class PageBuilder{
     os.write(("<tr><td>Author Email</td><td>" +
       sanitize(commit.author_email) + "</td></tr>").getBytes());
     os.write(("<tr><td>Author Date</td><td>" +
-      sanitize(commit.author_date.getTime().toString()) + "</td></tr>").getBytes());
+      commit.author_date.getTime().toString() + "</td></tr>").getBytes());
     os.write(("<tr><td>Committer Name</td><td>" +
       sanitize(commit.commit) + "</td></tr>").getBytes());
     os.write(("<tr><td>Committer Email</td><td>" +
       sanitize(commit.commit_email) + "</td></tr>").getBytes());
     os.write(("<tr><td>Committer Date</td><td>" +
-      sanitize(commit.commit_date.getTime().toString()) + "</td></tr>").getBytes());
+      commit.commit_date.getTime().toString() + "</td></tr>").getBytes());
     os.write(("<tr><td>Subject</td><td>" +
       sanitize(commit.subject) + "</td></tr>").getBytes());
     os.write("</table>".getBytes());
