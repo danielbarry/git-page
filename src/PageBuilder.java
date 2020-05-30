@@ -515,7 +515,8 @@ public class PageBuilder{
    **/
   public static String sanitize(String s){
     return s.replace("&", "&amp;")
-            .replace("<", "&lt;");
+            .replace("<", "&lt;")
+            .replace(">", "&gt;");
   }
 
   /**
