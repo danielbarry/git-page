@@ -704,7 +704,7 @@ public class Git{
    * @return True if value, otherwise false.
    **/
   public static boolean validCommit(String commit){
-    if(commit != null && commit.length() == 7){
+    if(commit != null && commit.length() == GIT_HASH_DIGEST_STR){
       for(int x = 0; x < commit.length(); x++){
         char c = commit.charAt(x);
         if(!(c >= '0' && c <= '9') && !(c >= 'a' && c <= 'f')){
