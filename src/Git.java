@@ -142,6 +142,7 @@ public class Git{
     File d = new File(dir.getAbsolutePath() + "/.git/objects/pack");
     /* Make sure it's readable */
     if(d.exists() && d.isDirectory() && d.canRead()){
+      Main.log("Unpacking required for '" + dir + "'");
       File[] packs = d.listFiles();
       /* Filter and loop over packs */
       for(int x = 0; x < packs.length; x++){
@@ -164,6 +165,7 @@ public class Git{
     }
     /* Refs can only be unpacked with help from remote */
     if(pull){
+      Main.log("Unpacking refs for '" + dir + "'");
       /* Get a list of tags */
       String[] tags = new String(exec(new String[]{"git", "tag", "-l"})).split("\n");
       /* Loop over tags and delete them */
@@ -172,6 +174,8 @@ public class Git{
       }
       /* Pull tags from remote */
       exec(new String[]{"git", "fetch", "--tags"});
+    }else{
+      Main.log("Unable to unpack refs for '" + dir + "'");
     }
   }
 
