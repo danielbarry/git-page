@@ -254,7 +254,7 @@ public class Git{
       dataPtr += GIT_HASH_DIGEST_RAW;
       entries[ePtr].flags = getShort(data, dataPtr);
       dataPtr += GIT_INDEX_INT_LEN;
-      entries[ePtr].path = getString(data, dataPtr, '\0');
+      entries[ePtr].path = PageBuilder.sanitize(getString(data, dataPtr, '\0'));
       dataPtr += entries[ePtr].path.length();
       /* Finally, increase the counter */
       ++ePtr;
@@ -352,7 +352,7 @@ public class Git{
                   String mode = getString(buff, buffPtr, ' ');
                   buffPtr += mode.length() + 1;
                   te.mode = Integer.parseInt(mode, 8);
-                  te.name = getString(buff, buffPtr, '\0');
+                  te.name = PageBuilder.sanitize(getString(buff, buffPtr, '\0'));
                   buffPtr += te.name.length() + 1;
                   te.hash = getHashRaw(buff, buffPtr);
                   buffPtr += GIT_HASH_DIGEST_RAW;
@@ -387,10 +387,12 @@ public class Git{
                       c.parent = line;
                       break;
                     case "author" :
-                      c.author = line.substring(0, line.indexOf('<'));
-                      c.author_email = line.substring(
-                        line.indexOf('<') + 1, line.indexOf('>')
+                      c.author = PageBuilder.sanitize(
+                        line.substring(0, line.indexOf('<'))
                       );
+                      c.author_email = PageBuilder.sanitize(line.substring(
+                        line.indexOf('<') + 1, line.indexOf('>')
+                      ));
                       c.author_date = Calendar.getInstance(
                         TimeZone.getTimeZone(line.substring(line.lastIndexOf(' ')))
                       );
@@ -402,10 +404,12 @@ public class Git{
                       ) * 1000L);
                       break;
                     case "committer" :
-                      c.commit = line.substring(0, line.indexOf('<'));
-                      c.commit_email = line.substring(
-                        line.indexOf('<') + 1, line.indexOf('>')
+                      c.commit = PageBuilder.sanitize(
+                        line.substring(0, line.indexOf('<'))
                       );
+                      c.commit_email = PageBuilder.sanitize(line.substring(
+                        line.indexOf('<') + 1, line.indexOf('>')
+                      ));
                       c.commit_date = Calendar.getInstance(
                         TimeZone.getTimeZone(line.substring(line.lastIndexOf(' ')))
                       );
@@ -419,7 +423,7 @@ public class Git{
                   }
                 }
                 /* Set the subject and store the commit */
-                c.subject = getString(buff, buffPtr, '\n');
+                c.subject = PageBuilder.sanitize(getString(buff, buffPtr, '\n'));
                 commits.put(c.hash, c);
                 break;
               case "blob" :

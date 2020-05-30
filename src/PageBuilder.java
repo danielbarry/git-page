@@ -406,8 +406,8 @@ public class PageBuilder{
             "<td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
               logs[x].hash.substring(0, 7) + "</a></td>" +
             "<td>" + logs[x].author_date.getTime().toString() + "</td>" +
-            "<td>" + sanitize(logs[x].author) + "</td>" +
-            "<td>" + sanitize(subject) + "</td>" +
+            "<td>" + logs[x].author + "</td>" +
+            "<td>" + subject + "</td>" +
           "</tr>"
         ).getBytes());
       }
@@ -456,19 +456,19 @@ public class PageBuilder{
     os.write(("<tr><td>Parents</td><td><a href=\"" + pre + "/" + proj + "/commit/" + commit.parent + "\">" +
       commit.parent + "</a></td></tr>").getBytes());
     os.write(("<tr><td>Author Name</td><td>" +
-      sanitize(commit.author) + "</td></tr>").getBytes());
+      commit.author + "</td></tr>").getBytes());
     os.write(("<tr><td>Author Email</td><td>" +
-      sanitize(commit.author_email) + "</td></tr>").getBytes());
+      commit.author_email + "</td></tr>").getBytes());
     os.write(("<tr><td>Author Date</td><td>" +
       commit.author_date.getTime().toString() + "</td></tr>").getBytes());
     os.write(("<tr><td>Committer Name</td><td>" +
-      sanitize(commit.commit) + "</td></tr>").getBytes());
+      commit.commit + "</td></tr>").getBytes());
     os.write(("<tr><td>Committer Email</td><td>" +
-      sanitize(commit.commit_email) + "</td></tr>").getBytes());
+      commit.commit_email + "</td></tr>").getBytes());
     os.write(("<tr><td>Committer Date</td><td>" +
       commit.commit_date.getTime().toString() + "</td></tr>").getBytes());
     os.write(("<tr><td>Subject</td><td>" +
-      sanitize(commit.subject) + "</td></tr>").getBytes());
+      commit.subject + "</td></tr>").getBytes());
     os.write("</table>".getBytes());
   }
 
@@ -513,7 +513,7 @@ public class PageBuilder{
    * @param s The string to be sanitized.
    * @return The sanitized string.
    **/
-  private static String sanitize(String s){
+  public static String sanitize(String s){
     return s.replace("&", "&amp;")
             .replace("<", "&lt;");
   }
@@ -609,15 +609,15 @@ public class PageBuilder{
         /* Write the item entry */
         os.write((
           "<item>" +
-            "<title>" + sanitize(subject) + "</title>" +
+            "<title>" + subject + "</title>" +
             "<guid>" + url + pre + "/" + proj + "/commit/" + logs[x].hash + "</guid>" +
             /* TODO: Should escape CDATA. */
             "<description><![CDATA[<table>" +
               "<tr><td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
                 logs[x].hash + "</a></td></tr>" +
               "<tr><td>" + logs[x].author_date.getTime().toString() + "</td></tr>" +
-              "<tr><td>" + sanitize(logs[x].author) + "</td></tr>" +
-              "<tr><td>" + sanitize(logs[x].subject) + "</td></tr>" +
+              "<tr><td>" + logs[x].author + "</td></tr>" +
+              "<tr><td>" + logs[x].subject + "</td></tr>" +
             "</table>]]></description>" +
             "<link>" + url + pre + "/" + proj + "/commit/" + logs[x].hash + "</link>" +
           "</item>"
