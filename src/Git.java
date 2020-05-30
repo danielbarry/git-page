@@ -467,7 +467,11 @@ public class Git{
    * @return The hash value retrieved.
    **/
   private static String getHash(byte[] data, int i){
-    return new String(data, i, GIT_HASH_DIGEST_STR);
+    if(i + GIT_HASH_DIGEST_STR < data.length){
+      return new String(data, i, GIT_HASH_DIGEST_STR);
+    }else{
+      return null;
+    }
   }
 
   /**
