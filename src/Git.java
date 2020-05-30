@@ -368,7 +368,6 @@ public class Git{
                 Main.warn("Unknown object type");
                 break;
             }
-            /* TODO: Add to list of commits. */
           }
         }
       }
