@@ -158,11 +158,11 @@ public class Git{
       File[] packs = d.listFiles();
       /* Filter and loop over packs */
       for(int x = 0; x < packs.length; x++){
-        Main.log("Unpacking '" + packs[x].getName() + "' in '" + dir + "'");
         /* If it's not a pack file, skip */
         if(!packs[x].getName().endsWith(".pack")){
           continue;
         }
+        Main.log("Unpacking '" + packs[x].getName() + "' in '" + dir + "'");
         File pack = new File(dir.getAbsolutePath() + "/.pack");
         /* Move the pack to the root */
         packs[x].renameTo(pack);
