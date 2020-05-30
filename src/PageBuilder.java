@@ -40,6 +40,8 @@ public class PageBuilder{
   private String url;
   private HashMap<String, Git> repos;
   private byte[] pageHeader;
+  private HashMap<String, Long> pageTime;
+  private HashMap<String, byte[]> pageCache;
 
   /**
    * PageBuilder()
@@ -131,6 +133,9 @@ public class PageBuilder{
         "</nav></td>" +
       "</tr></table>"
     ).getBytes();
+    /* Setup page cache */
+    pageTime = new HashMap<String, Long>();
+    pageCache = new HashMap<String, byte[]>();
   }
 
   /**
@@ -302,6 +307,17 @@ public class PageBuilder{
       os.write(indexBad);
       return;
     }
+    /* If we have an up-to-date cache, serve it */
+    String cacheKey = proj + "/index";
+    if(
+      pageTime.get(cacheKey)  != null &&
+      pageCache.get(cacheKey) != null &&
+      pageTime.get(cacheKey) == repos.get(proj).lastUpdate()
+    ){
+      Main.log("Delivering content from cache '" + cacheKey + "'");
+      os.write(pageCache.get(cacheKey));
+      return;
+    }
     /* Find the overview page */
     File file = null;
     int ext = 0;
@@ -366,6 +382,9 @@ public class PageBuilder{
         overviewHTML += "</code></pre>";
       }
       os.write(overviewHTML.getBytes());
+      /* Update our cache with what we just had to process */
+      pageTime.put(cacheKey, repos.get(proj).lastUpdate());
+      pageCache.put(cacheKey, overviewHTML.getBytes());
     }else{
       os.write("No recognized overview found.".getBytes());
     }
