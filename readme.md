@@ -1,3 +1,5 @@
+<svg width="64" height="64"><polyline points="32,0 0,32 32,64 64,32 32,32 32,48 16,32 32,16 48,32 64,32" fill="#000"/></svg>
+
 # Git Page
 
 A simple stand-alone Git repository viewer written in Java which serves
