@@ -101,6 +101,7 @@ public class Git{
 
   private File dir;
   private boolean pull;
+  private long lastUpdate;
   private IndexEntry[] entries;
   private HashMap<String, String> refs;
   private HashMap<String, Tree> trees;
@@ -121,7 +122,8 @@ public class Git{
     /* Store variables internally */
     this.dir = dir;
     this.pull = pull;
-    /* Initialize one */
+    /* Initialize once */
+    this.lastUpdate = System.currentTimeMillis();
     this.entries = null;
     this.refs = new HashMap<String, String>();
     this.trees = new HashMap<String, Tree>();
@@ -143,6 +145,18 @@ public class Git{
     readRefs(new File(dir.getAbsolutePath() + "/.git/refs"), "");
     readObjects();
     readPages(commits.get(refs.get("heads_master")));
+    lastUpdate = System.currentTimeMillis();
+  }
+
+  /**
+   * lastUpdate()
+   *
+   * Return the time of the last update in milliseconds.
+   *
+   * @return The time of the last update to the repository in milliseconds.
+   **/
+  public long lastUpdate(){
+    return lastUpdate;
   }
 
   /**
