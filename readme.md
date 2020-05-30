@@ -36,7 +36,12 @@ checked out at the master branch and pre-zipped to save on bandwidth.
 ```
                 +--------------+        +--------------+
                 |     Main     |<-------+     JSON     |
-                +-----+--+-----+        +--------------+
+                +-----+--------+        +--------------+
+                      |
+                      v
+                +--------------+
+                |      Git     |
+                +-----+--+-----+
                       |  |
              +--------+  +--------+
              |                    |
@@ -48,11 +53,6 @@ checked out at the master branch and pre-zipped to save on bandwidth.
              v
     +--------------+
     |  PageBuilder |
-    +--------+-----+
-             |
-             v
-    +--------------+
-    |      Git     |
     +--------------+
 ```
 
