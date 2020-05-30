@@ -522,29 +522,24 @@ public class Git{
    *
    * Get a list of commits, otherwise an empty list.
    *
-   * @param start The start of the commits to be displayed.
-   * @param count The number of commits to be displayed.
-   * @param sep The separator to be used.
-   * @return List of commits, one per line.
+   * @param page The start of the commits to be returned..
+   * @return Array of commits.
    **/
-  public String[] log(int start, int count, String sep){
-    byte[] buff = exec(
-      dir,
-      new String[]{
-        "git",
-        "log",
-        "--all",
-        "--skip=" + start,
-        "--max-count=" + count,
-        "--pretty=format:%h" + sep + "%D" + sep + "%cI" + sep + "%cn" + sep + "%s"
+  public Commit[] log(int page){
+    Commit[] res = new Commit[GIT_PAGE_SIZE];
+    /* Try to find a page */
+    if(page < pages.size() && pages.get(page) != null){
+      /* Store start of page */
+      Commit c = pages.get(page);
+      /* Now find additional commits */
+      for(int x = 0; c != null && x < res.length; x++){
+        /* Store this result */
+        res[x] = c;
+        /* Load next result */
+        c = commits.get(c.parent);
       }
-    );
-    if(buff != null){
-      return (new String(buff)).split("\n");
-    }else{
-      Main.warn("Command failed to run");
-      return new String[]{};
     }
+    return res;
   }
 
   /**
