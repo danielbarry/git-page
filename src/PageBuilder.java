@@ -155,8 +155,6 @@ public class PageBuilder{
         /* Check for special string */
         if(req.startsWith(pre)){
           req = req.substring(pre.length());
-        }else{
-          pre = "";
         }
         String[] paths = req.split("/");
         /* Process the request */
