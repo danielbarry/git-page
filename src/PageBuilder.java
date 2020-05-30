@@ -391,28 +391,25 @@ public class PageBuilder{
     os.write(("<a href=\"" + pre + "/" + proj + "/page/" + (page + 1) + "\">Next</a>").getBytes());
     os.write("</nav>".getBytes());
     /* Fill out table */
-    /* TODO: Not sure if tab character is a safe delimiter. */
-    String[] logs = repos.get(proj).log(page * 16, 16, "\t");
+    Git.Commit[] logs = repos.get(proj).log(page);
     os.write("<table>".getBytes());
     for(int x = 0; x < logs.length; x++){
-      String log[] = logs[x].split("\t");
-      if(log.length == 5 && Git.validCommit(log[0])){
+      if(logs[x] != null){
         /* Reduce length of commit message */
-        if(log[4].length() > 32){
-          log[4] = log[4].substring(0, 28) + "[..]";
+        String subject = logs[x].subject;
+        if(subject != null && subject.length() > 32){
+          subject = subject.substring(0, 30) + "..";
         }
         /* Write the entry */
         os.write((
           "<tr>" +
-            "<td><a href=\"" + pre + "/" + proj + "/commit/" + log[0] + "\">" + log[0] + "</a></td>" +
-            "<td>" + sanitize(log[1]) + "</td>" +
-            "<td>" + sanitize(log[2]) + "</td>" +
-            "<td>" + sanitize(log[3]) + "</td>" +
-            "<td>" + sanitize(log[4]) + "</td>" +
+            "<td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
+              logs[x].hash + "</a></td>" +
+            "<td>" + logs[x].author_date.getTime().toString() + "</td>" +
+            "<td>" + sanitize(logs[x].author) + "</td>" +
+            "<td>" + sanitize(subject) + "</td>" +
           "</tr>"
         ).getBytes());
-      }else{
-        Main.warn("Malformed commit messaged skipped");
       }
     }
     os.write("</table>".getBytes());
@@ -594,30 +591,28 @@ public class PageBuilder{
     os.write(("<title>" + proj + "</title>").getBytes());
     os.write(("<description>RSS feed for commits to " + proj + ".</description>").getBytes());
     os.write(("<link>" + url + pre + "/" + proj + "</link>").getBytes());
-    /* TODO: Not sure if tab character is a safe delimiter. */
-    String[] logs = repos.get(proj).log(0, 16, "\t");
+    Git.Commit[] logs = repos.get(proj).log(0);
     for(int x = 0; x < logs.length; x++){
-      String log[] = logs[x].split("\t");
-      if(log.length == 5 && Git.validCommit(log[0])){
+      if(logs[x] != null){
         /* Reduce length of commit message */
-        String title = log[4];
-        if(title.length() > 32){
-          title = title.substring(0, 28) + "[..]";
+        String subject = logs[x].subject;
+        if(subject != null && subject.length() > 32){
+          subject = subject.substring(0, 30) + "..";
         }
         /* Write the item entry */
         os.write((
           "<item>" +
-            "<title>" + sanitize(title) + "</title>" +
-            "<guid>" + url + pre + "/" + proj + "/commit/" + log[0] + "</guid>" +
+            "<title>" + sanitize(subject) + "</title>" +
+            "<guid>" + url + pre + "/" + proj + "/commit/" + logs[x].hash + "</guid>" +
             /* TODO: Should escape CDATA. */
             "<description><![CDATA[<table>" +
-              "<tr><td>Hash</td><td>"    + log[0]           + "</td></tr>" +
-              "<tr><td>Ref</td><td>"     + sanitize(log[1]) + "</td></tr>" +
-              "<tr><td>Date</td><td>"    + sanitize(log[2]) + "</td></tr>" +
-              "<tr><td>Author</td><td>"  + sanitize(log[3]) + "</td></tr>" +
-              "<tr><td>Comment</td><td>" + sanitize(log[4]) + "</td></tr>" +
+              "<tr><td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
+                logs[x].hash + "</a></td></tr>" +
+              "<tr><td>" + logs[x].author_date.getTime().toString() + "</td></tr>" +
+              "<tr><td>" + sanitize(logs[x].author) + "</td></tr>" +
+              "<tr><td>" + sanitize(logs[x].subject) + "</td></tr>" +
             "</table>]]></description>" +
-            "<link>" + url + pre + "/" + proj + "/commit/" + log[0] + "</link>" +
+            "<link>" + url + pre + "/" + proj + "/commit/" + logs[x].hash + "</link>" +
           "</item>"
         ).getBytes());
       }else{
