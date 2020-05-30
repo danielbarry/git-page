@@ -250,7 +250,7 @@ public class Git{
     for(int x = 0; x < objectsPre.length; x++){
       File d = objectsPre[x];
       /* Make sure we have something valid */
-      if(d.exists() && d.isDirectory() && d.canRead()){
+      if(d.exists() && d.isDirectory() && d.canRead() && d.getName().length() == 2){
         String pre = d.getName();
         /* Now loop over actual objects */
         File[] objectsPost = d.listFiles();
