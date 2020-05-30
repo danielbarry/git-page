@@ -125,10 +125,50 @@ public class Git{
     this.commits = new HashMap<String, Commit>();
     this.blobs = new HashMap<String, Blob>();
     this.pages = null;
+    unpack();
     readIndex();
     readRefs(new File(dir.getAbsolutePath() + "/.git/refs"), "");
     readObjects();
     readPages(commits.get(refs.get("heads_master")));
+  }
+
+  /**
+   * unpack()
+   *
+   * Find and unpack any packed git objects manually. Git likes to pack objects
+   * to save space, but this really slows down searching.
+   **/
+  private void unpack(){
+    File d = new File(dir.getAbsolutePath() + "/.git/objects/pack");
+    /* Make sure it's readable */
+    if(d.exists() && d.isDirectory() && d.canRead()){
+      File[] packs = d.listFiles();
+      /* Filter and loop over packs */
+      for(int x = 0; x < packs.length && packs[x].getName().endsWith(".pack"); x++){
+        Main.log("Unpacking '" + packs[x].getName() + "' in '" + dir + "'");
+        File pack = new File(dir.getAbsolutePath() + "/.pack");
+        /* Move the pack to the root */
+        packs[x].renameTo(pack);
+        /* Unpack */
+        /* TODO: This locks us specifically to Unix based systems. */
+        exec(new String[]{"/bin/sh", "-c", "git unpack-objects < " + pack.getName()});
+        /* Remove */
+        pack.delete();
+      }
+    }else{
+      Main.log("Didn't find any objects to unpack");
+    }
+    /* Refs can only be unpacked with help from remote */
+    if(pull){
+      /* Get a list of tags */
+      String[] tags = new String(exec(new String[]{"git", "tag", "-l"})).split("\n");
+      /* Loop over tags and delete them */
+      for(int x = 0; x < tags.length; x++){
+        exec(new String[]{"git", "tag", "-d", tags[x]});
+      }
+      /* Pull tags from remote */
+      exec(new String[]{"git", "fetch", "--tags"});
+    }
   }
 
   /**
