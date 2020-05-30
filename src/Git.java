@@ -23,7 +23,7 @@ public class Git{
    *
    * A data structure for the index entries.
    **/
-  private class IndexEntry{
+  public class IndexEntry{
     public long ctime_s;
     public long ctime_n;
     public long mtime_s;
@@ -44,7 +44,7 @@ public class Git{
    *
    * A data structure for the tree entries.
    **/
-  private class TreeEntry{
+  public class TreeEntry{
     public int mode;
     public String name;
     public String hash;
@@ -55,7 +55,7 @@ public class Git{
    *
    * A data structure for the trees.
    **/
-  private class Tree{
+  public class Tree{
     public String hash;
     public TreeEntry[] entries;
   }
@@ -65,7 +65,7 @@ public class Git{
    *
    * A data structure for the commits.
    **/
-  private class Commit{
+  public class Commit{
     public String hash;
     public String tree;
     public String parent;
@@ -83,7 +83,7 @@ public class Git{
    *
    * A data structure for the blobs.
    **/
-  private class Blob{
+  public class Blob{
     /* TODO: Figure out valid blob structure. */
   }
 
