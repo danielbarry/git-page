@@ -434,7 +434,6 @@ public class PageBuilder{
       hash == null           ||
       !Git.validCommit(hash)
     ){
-      Main.warn("here");//TODO
       os.write(indexBad);
       return;
     }
@@ -447,7 +446,6 @@ public class PageBuilder{
     Git.Commit commit = repos.get(proj).commit(hash);
     /* Make sure it exists */
     if(commit == null){
-      Main.warn("here");//TODO
       os.write(indexBad);
       return;
     }
