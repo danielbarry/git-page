@@ -3,6 +3,7 @@ package b.gp;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
@@ -462,6 +463,34 @@ public class PageBuilder{
     }
     if(file != null){
       StringBuilder overviewHTML = new StringBuilder();
+      /* Display repository stats */
+      overviewHTML.append("<nav class=\"sub\">");
+      overviewHTML.append(  "Commits: ");
+      overviewHTML.append(  Integer.toString(repos.get(proj).numCommits()));
+      Git.Commit c = repos.get(proj).getHead();
+      if(c != null){
+        overviewHTML.append(" | Latest: ");
+        overviewHTML.append("<a href=\"");
+        overviewHTML.append(  pre);
+        overviewHTML.append(  "/");
+        overviewHTML.append(  proj);
+        overviewHTML.append(  "/commit/");
+        overviewHTML.append(  c.hash);
+        overviewHTML.append(  "\">");
+        overviewHTML.append(    c.hash.substring(0, 7));
+        overviewHTML.append("</a>");
+        overviewHTML.append(" committed by ");
+        overviewHTML.append(c.author);
+        overviewHTML.append(", ");
+        overviewHTML.append(
+          TimeUnit.DAYS.convert(
+            System.currentTimeMillis() - c.author_date.getTime(),
+            TimeUnit.MILLISECONDS
+          )
+        );
+        overviewHTML.append(" days ago");
+      }
+      overviewHTML.append("</nav>");
       /* Pre-markup for text file */
       if(ext == 2){
         overviewHTML.append("<pre><code>");
