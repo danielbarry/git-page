@@ -174,16 +174,17 @@ public class PageBuilder{
     Cache c = cache.get(req);
     if(c != null && c.index.equals(req)){
       /* If there is an associated repo, make sure it's still valid */
-      if(c.repo != null && c.timestamp == c.repo.lastUpdate()){
+      if(
+        (c.repo != null && c.timestamp == c.repo.lastUpdate()) ||
+        c.repo == null
+      ){
         os.write(c.payload);
-      /* Serve it anyway */
-      }else{
-        os.write(c.payload);
+        /* Should we also output a footer? */
+        if(c.footer){
+          os.write(genFooter(start).getBytes());
+        }
+        return;
       }
-      if(c.footer){
-        os.write(genFooter(start).getBytes());
-      }
-      return;
     }
     /* Allow cache garbage collection if needed */
     gcCache();
