@@ -44,6 +44,7 @@ public class Maintain extends Thread{
    **/
   @Override
   public void run(){
+    /* TODO: Better check for repos to maintain. */
     /* Make sure there is something to maintain */
     if(repos.size() <= 0){
       Main.log("No repos to maintain, stopping thread");
