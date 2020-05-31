@@ -22,8 +22,17 @@ public class PageBuilder{
     public boolean code = false;
   }
 
-  private static final String[] INDEX_NAMES = new String[]{ "readme", "index" };
-  private static final String[] INDEX_EXTS = new String[]{ "md", "markdown", "txt", "htm", "html" };
+  private static final String[] INDEX_NAMES = new String[]{
+    "readme",
+    "index"
+  };
+  private static final String[] INDEX_EXTS = new String[]{
+    "md",
+    "markdown",
+    "txt",
+    "htm",
+    "html"
+  };
   private static final byte[] HTTP_HEAD = (
     "HTTP/1.1 200 OK\r\n" +
     "Content-Type: text/html\r\n" +
