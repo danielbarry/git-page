@@ -21,6 +21,7 @@ offer simplicity, control and RSS feeds about updates.
 * Cuts off long responses
 * RSS feeds
 * Auto fetching/pulling remote changes from origin
+* Page caching
 
 ## Future Planned Features
 
