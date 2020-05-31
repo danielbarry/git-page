@@ -347,19 +347,18 @@ public class PageBuilder{
       }
     }
     if(file != null){
-      String overviewHTML = "";
+      StringBuilder overviewHTML = new StringBuilder();
       /* Pre-markup for text file */
       if(ext == 2){
-        overviewHTML += "<pre><code>";
+        overviewHTML.append("<pre><code>");
       }else{
         /* Otherwise lets make sure all JS is disabled */
-        overviewHTML +=
-          "<script>" +
-            "throw new Error(\"Disabled\");" +
-            "return false;" +
-            "die();" +
-            "debugger;" +
-          "</script>";
+        overviewHTML.append("<script>");
+        overviewHTML.append(  "throw new Error(\"Disabled\");");
+        overviewHTML.append(  "return false;");
+        overviewHTML.append(  "die();");
+        overviewHTML.append(  "debugger;");
+        overviewHTML.append("</script>");
       }
       MarkState ms = new MarkState();
       /* Load the file */
@@ -369,16 +368,17 @@ public class PageBuilder{
           /* Markdown */
           case 0 :
           case 1 :
-            overviewHTML += markup(s.nextLine(), ms);
+            overviewHTML.append(markup(s.nextLine(), ms));
             break;
           /* Plain text */
           case 2 :
-            overviewHTML += sanitize(s.nextLine() + "\n");
+            overviewHTML.append(sanitize(s.nextLine()));
+            overviewHTML.append("\n");
             break;
           /* HTML */
           case 3 :
           case 4 :
-            overviewHTML += s.nextLine();
+            overviewHTML.append(s.nextLine());
             break;
           default :
             Main.warn("Unsupported extension");
@@ -388,9 +388,9 @@ public class PageBuilder{
       s.close();
       /* Post-markup for text file */
       if(ext == 2){
-        overviewHTML += "</code></pre>";
+        overviewHTML.append("</code></pre>");
       }
-      os.write(overviewHTML.getBytes());
+      os.write(overviewHTML.toString().getBytes());
       ///* Update our cache with what we just had to process */
       //pageTime.put(cacheKey, repos.get(proj).lastUpdate());
       //pageCache.put(cacheKey, overviewHTML.getBytes());
@@ -416,16 +416,37 @@ public class PageBuilder{
       return;
     }
     /* Generate pages navigation */
-    String pageHTML = "<nav class=\"sub\">";
+    StringBuilder pageHTML = new StringBuilder();
+    pageHTML.append("<nav class=\"sub\">");
     if(page > 0){
-      pageHTML += "<a href=\"" + pre + "/" + proj + "/page/" + (page - 1) + "\">Prev</a> < ";
+      pageHTML.append("<a href=\"");
+      pageHTML.append(  pre);
+      pageHTML.append(  "/");
+      pageHTML.append(  proj);
+      pageHTML.append(  "/page/");
+      pageHTML.append(  (page - 1));
+      pageHTML.append(  "\">Prev</a> < ");
     }
-    pageHTML += "<a href=\"" + pre + "/" + proj + "/page/" + page + "\">" + page + "</a> > ";
-    pageHTML += "<a href=\"" + pre + "/" + proj + "/page/" + (page + 1) + "\">Next</a>";
-    pageHTML += "</nav>";
+    pageHTML.append("<a href=\"");
+    pageHTML.append(  pre);
+    pageHTML.append(  "/");
+    pageHTML.append(  proj);
+    pageHTML.append(  "/page/");
+    pageHTML.append(  page);
+    pageHTML.append(  "\">");
+    pageHTML.append(  page);
+    pageHTML.append(  "</a> > ");
+    pageHTML.append("<a href=\"");
+    pageHTML.append(  pre);
+    pageHTML.append(  "/");
+    pageHTML.append(  proj);
+    pageHTML.append(  "/page/");
+    pageHTML.append(  (page + 1));
+    pageHTML.append(  "\">Next</a>");
+    pageHTML.append("</nav>");
     /* Fill out table */
     Git.Commit[] logs = repos.get(proj).log(page);
-    pageHTML += "<table>";
+    pageHTML.append("<table>");
     for(int x = 0; x < logs.length; x++){
       if(logs[x] != null){
         /* Reduce length of commit message */
@@ -434,18 +455,30 @@ public class PageBuilder{
           subject = subject.substring(0, 30) + "..";
         }
         /* Write the entry */
-        pageHTML +=
-          "<tr>" +
-            "<td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
-              logs[x].hash.substring(0, 7) + "</a></td>" +
-            "<td>" + logs[x].author_date.toString() + "</td>" +
-            "<td>" + logs[x].author + "</td>" +
-            "<td>" + subject + "</td>" +
-          "</tr>";
+        pageHTML.append("<tr>");
+        pageHTML.append(  "<td><a href=\"");
+        pageHTML.append(    pre);
+        pageHTML.append(    "/");
+        pageHTML.append(    proj);
+        pageHTML.append(    "/commit/");
+        pageHTML.append(    logs[x].hash);
+        pageHTML.append(    "\">");
+        pageHTML.append(      logs[x].hash.substring(0, 7));
+        pageHTML.append(  "</a></td>");
+        pageHTML.append(  "<td>");
+        pageHTML.append(    logs[x].author_date.toString());
+        pageHTML.append(  "</td>");
+        pageHTML.append(  "<td>");
+        pageHTML.append(    logs[x].author);
+        pageHTML.append(  "</td>");
+        pageHTML.append(  "<td>");
+        pageHTML.append(    subject);
+        pageHTML.append(  "</td>");
+        pageHTML.append("</tr>");
       }
     }
-    pageHTML += "</table>";
-    os.write(pageHTML.getBytes());
+    pageHTML.append("</table>");
+    os.write(pageHTML.toString().getBytes());
   }
 
   /**
@@ -471,10 +504,23 @@ public class PageBuilder{
       return;
     }
     /* Generate pages navigation */
-    String commitHTML = "<nav class=\"sub\">";
-    commitHTML += "<a href=\"" + pre + "/" + proj + "/commit/" + hash + "\">Summary</a> ";
-    commitHTML += "<a href=\"" + pre + "/" + proj + "/diff/" + hash + "\">Diff</a>";
-    commitHTML += "</nav>";
+    StringBuilder commitHTML = new StringBuilder();
+    commitHTML.append("<nav class=\"sub\">");
+    commitHTML.append("<a href=\"");
+    commitHTML.append(  pre);
+    commitHTML.append(  "/");
+    commitHTML.append(  proj);
+    commitHTML.append(  "/commit/");
+    commitHTML.append(  hash);
+    commitHTML.append(  "\">Summary</a> ");
+    commitHTML.append("<a href=\"");
+    commitHTML.append(  pre);
+    commitHTML.append(  "/");
+    commitHTML.append(  proj);
+    commitHTML.append(  "/diff/");
+    commitHTML.append(  hash);
+    commitHTML.append(  "\">Diff</a>");
+    commitHTML.append("</nav>");
     /* Generate details */
     Git.Commit commit = repos.get(proj).commit(hash);
     /* Make sure it exists */
@@ -482,28 +528,51 @@ public class PageBuilder{
       os.write(indexBad);
       return;
     }
-    commitHTML += "<table>";
-    commitHTML += "<tr><td>Hash</td><td><a href=\"" + pre + "/" + proj + "/commit/" + commit.hash + "\">" +
-      commit.hash + "</a></td></tr>";
-    commitHTML += "<tr><td>Tree</td><td>" + commit.tree + "</a></td></tr>";
-    commitHTML += "<tr><td>Parents</td><td><a href=\"" + pre + "/" + proj + "/commit/" + commit.parent + "\">" +
-      commit.parent + "</a></td></tr>";
-    commitHTML += "<tr><td>Author Name</td><td>" +
-      commit.author + "</td></tr>";
-    commitHTML += "<tr><td>Author Email</td><td>" +
-      commit.author_email + "</td></tr>";
-    commitHTML += "<tr><td>Author Date</td><td>" +
-      commit.author_date.toString() + "</td></tr>";
-    commitHTML += "<tr><td>Committer Name</td><td>" +
-      commit.commit + "</td></tr>";
-    commitHTML += "<tr><td>Committer Email</td><td>" +
-      commit.commit_email + "</td></tr>";
-    commitHTML += "<tr><td>Committer Date</td><td>" +
-      commit.commit_date.toString() + "</td></tr>";
-    commitHTML += "<tr><td>Subject</td><td>" +
-      commit.subject + "</td></tr>";
-    commitHTML += "</table>";
-    os.write(commitHTML.getBytes());
+    commitHTML.append("<table>");
+    commitHTML.append(  "<tr><td>Hash</td><td><a href=\"");
+    commitHTML.append(    pre);
+    commitHTML.append(    "/");
+    commitHTML.append(    proj);
+    commitHTML.append(    "/commit/");
+    commitHTML.append(    commit.hash);
+    commitHTML.append(    "\">");
+    commitHTML.append(    commit.hash);
+    commitHTML.append(  "</a></td></tr>");
+    commitHTML.append(  "<tr><td>Tree</td><td>");
+    commitHTML.append(    commit.tree);
+    commitHTML.append(  "</a></td></tr>");
+    commitHTML.append(  "<tr><td>Parents</td><td><a href=\"");
+    commitHTML.append(    pre);
+    commitHTML.append(    "/");
+    commitHTML.append(    proj);
+    commitHTML.append(    "/commit/");
+    commitHTML.append(    commit.parent);
+    commitHTML.append(    "\">");
+    commitHTML.append(    commit.parent);
+    commitHTML.append(  "</a></td></tr>");
+    commitHTML.append(  "<tr><td>Author Name</td><td>");
+    commitHTML.append(    commit.author);
+    commitHTML.append(  "</td></tr>");
+    commitHTML.append(  "<tr><td>Author Email</td><td>");
+    commitHTML.append(    commit.author_email);
+    commitHTML.append(  "</td></tr>");
+    commitHTML.append(  "<tr><td>Author Date</td><td>");
+    commitHTML.append(    commit.author_date.toString());
+    commitHTML.append(  "</td></tr>");
+    commitHTML.append(  "<tr><td>Committer Name</td><td>");
+    commitHTML.append(    commit.commit);
+    commitHTML.append(  "</td></tr>");
+    commitHTML.append(  "<tr><td>Committer Email</td><td>");
+    commitHTML.append(    commit.commit_email);
+    commitHTML.append(  "</td></tr>");
+    commitHTML.append(  "<tr><td>Committer Date</td><td>");
+    commitHTML.append(    commit.commit_date.toString());
+    commitHTML.append(  "</td></tr>");
+    commitHTML.append(  "<tr><td>Subject</td><td>");
+    commitHTML.append(    commit.subject);
+    commitHTML.append(  "</td></tr>");
+    commitHTML.append("</table>");
+    os.write(commitHTML.toString().getBytes());
   }
 
   /**
@@ -528,16 +597,29 @@ public class PageBuilder{
       return;
     }
     /* Generate pages navigation */
-    String diffHTML = "<nav class=\"sub\">";
-    diffHTML += "<a href=\"" + pre + "/" + proj + "/commit/" + commit + "\">Summary</a> ";
-    diffHTML += "<a href=\"" + pre + "/" + proj + "/diff/" + commit + "\">Diff</a>";
-    diffHTML += "</nav>";
+    StringBuilder diffHTML = new StringBuilder();
+    diffHTML.append("<nav class=\"sub\">");
+    diffHTML.append("<a href=\"");
+    diffHTML.append(  pre);
+    diffHTML.append(  "/");
+    diffHTML.append(  proj);
+    diffHTML.append(  "/commit/");
+    diffHTML.append(  commit);
+    diffHTML.append(  "\">Summary</a> ");
+    diffHTML.append("<a href=\"");
+    diffHTML.append(  pre);
+    diffHTML.append(  "/");
+    diffHTML.append(  proj);
+    diffHTML.append(  "/diff/");
+    diffHTML.append(  commit);
+    diffHTML.append(  "\">Diff</a>");
+    diffHTML.append("</nav>");
     /* Generate details */
     String diff = repos.get(proj).diff(commit);
-    diffHTML += "<pre><code>";
-    diffHTML += sanitize(diff);
-    diffHTML += "</code></pre>";
-    os.write(diffHTML.getBytes());
+    diffHTML.append("<pre><code>");
+    diffHTML.append(  sanitize(diff));
+    diffHTML.append("</code></pre>");
+    os.write(diffHTML.toString().getBytes());
   }
 
   /**
@@ -655,10 +737,20 @@ public class PageBuilder{
     /* Send the header early */
     os.write(XML_HEAD);
     /* Generate RSS headers */
-    String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><rss version=\"2.0\"><channel>";
-    xml += "<title>" + proj + "</title>";
-    xml += "<description>RSS feed for commits to " + proj + ".</description>";
-    xml += "<link>" + url + pre + "/" + proj + "</link>";
+    StringBuilder xml = new StringBuilder();
+    xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><rss version=\"2.0\"><channel>");
+    xml.append("<title>");
+    xml.append(  proj);
+    xml.append("</title>");
+    xml.append("<description>RSS feed for commits to ");
+    xml.append(  proj);
+    xml.append(".</description>");
+    xml.append("<link>");
+      xml.append(url);
+      xml.append(pre);
+      xml.append("/");
+      xml.append(proj);
+    xml.append("</link>");
     Git.Commit[] logs = repos.get(proj).log(0);
     for(int x = logs.length - 1; x >= 0; x--){
       if(logs[x] != null){
@@ -668,24 +760,35 @@ public class PageBuilder{
           subject = subject.substring(0, 30) + "..";
         }
         /* Write the item entry */
-        xml +=
-          "<item>" +
-            "<title>" + subject + "</title>" +
-            "<author>" + logs[x].author + "</author>" +
-            "<pubDate>" +
-              intToDay(logs[x].author_date.getDay()) + ", " +
-              logs[x].author_date.toGMTString() +
-            "</pubDate>" +
-            "<description>" + logs[x].subject + "</description>" +
-            "<link>" +
-              url + pre + "/" + proj + "/commit/" + logs[x].hash +
-            "</link>" +
-          "</item>";
+        xml.append("<item>");
+        xml.append(  "<title>");
+        xml.append(    subject);
+        xml.append(  "</title>");
+        xml.append(  "<author>");
+        xml.append(    logs[x].author);
+        xml.append(  "</author>");
+        xml.append(  "<pubDate>");
+        xml.append(    intToDay(logs[x].author_date.getDay()));
+        xml.append(    ", ");
+        xml.append(    logs[x].author_date.toGMTString());
+        xml.append(  "</pubDate>");
+        xml.append(  "<description>");
+        xml.append(    logs[x].subject);
+        xml.append(  "</description>");
+        xml.append(  "<link>");
+        xml.append(    url);
+        xml.append(    pre);
+        xml.append(    "/");
+        xml.append(    proj);
+        xml.append(    "/commit/");
+        xml.append(    logs[x].hash);
+        xml.append(  "</link>");
+        xml.append("</item>");
       }
     }
     /* Generate RSS footers */
-    xml += "</channel></rss>";
-    os.write(xml.getBytes());
+    xml.append("</channel></rss>");
+    os.write(xml.toString().getBytes());
   }
 
   /**
