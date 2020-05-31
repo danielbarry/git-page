@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -35,6 +36,7 @@ public class PageBuilder{
     public boolean code = false;
   }
 
+  private static final int CACHE_MAX = 256 * 256 * 16;
   private static final String[] INDEX_NAMES = new String[]{
     "readme",
     "index"
@@ -179,7 +181,8 @@ public class PageBuilder{
       os.write(genFooter(start).getBytes());
       return;
     }
-    /* TODO: Clean-up cache if it's getting too large. */
+    /* Allow cache garbage collection if needed */
+    gcCache();
     /* Store pre-string for this request */
     String pre = reqPre;
     /* Handle different cases */
@@ -329,6 +332,23 @@ public class PageBuilder{
     c.payload = payload.getBytes();
     cache.put(hash, c);
     return c.payload;
+  }
+
+  /**
+   * gcCache()
+   *
+   * Randomly delete items from the cash if the maximum cache size is breached.
+   **/
+  private void gcCache(){
+    if(cache.size() > CACHE_MAX){
+      Main.log("Garbage collecting cache");
+      int r = (new Random()).nextInt(256);
+      String[] keys = cache.keySet().toArray(new String[0]);
+      for(int x = r; x < keys.length; x += r){
+        cache.remove(keys[x]);
+      }
+      Main.log("Cache garbage collection complete");
+    }
   }
 
   /**
@@ -818,7 +838,6 @@ public class PageBuilder{
   private String genRSS(String pre, String proj) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj)){
-      /* TODO: Not clear what to write if feed cannot be generated. */
       return "";
     }
     StringBuilder xml = new StringBuilder();
