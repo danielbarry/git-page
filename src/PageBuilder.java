@@ -25,6 +25,7 @@ public class PageBuilder{
     public long timestamp;
     public Git repo;
     public byte[] payload;
+    public boolean footer;
   }
 
   /**
@@ -179,7 +180,9 @@ public class PageBuilder{
       }else{
         os.write(c.payload);
       }
-      os.write(genFooter(start).getBytes());
+      if(c.footer){
+        os.write(genFooter(start).getBytes());
+      }
       return;
     }
     /* Allow cache garbage collection if needed */
@@ -209,6 +212,7 @@ public class PageBuilder{
             os.write(updateCache(
               req,
               null,
+              true,
               genHeader(pre, null) +
               genRoot(pre)
             ));
@@ -218,6 +222,7 @@ public class PageBuilder{
             os.write(updateCache(
               req,
               paths[1],
+              true,
               genHeader(pre, paths[1]) +
               genOverview(pre, paths[1])
             ));
@@ -231,6 +236,7 @@ public class PageBuilder{
                 os.write(updateCache(
                   req,
                   paths[1],
+                  true,
                   genHeader(pre, paths[1]) +
                   genPage(pre, paths[1], 0)
                 ));
@@ -240,6 +246,7 @@ public class PageBuilder{
                 os.write(updateCache(
                   req,
                   paths[1],
+                  false,
                   genRSS(pre, paths[1])
                 ));
                 break;
@@ -258,6 +265,7 @@ public class PageBuilder{
                 os.write(updateCache(
                   req,
                   paths[1],
+                  true,
                   genHeader(pre, paths[1]) +
                   genCommit(pre, paths[1], paths[3])
                 ));
@@ -267,6 +275,7 @@ public class PageBuilder{
                 os.write(updateCache(
                   req,
                   paths[1],
+                  true,
                   genHeader(pre, paths[1]) +
                   genDiff(pre, paths[1], paths[3])
                 ));
@@ -283,6 +292,7 @@ public class PageBuilder{
                 os.write(updateCache(
                   req,
                   paths[1],
+                  true,
                   genHeader(pre, paths[1]) +
                   genPage(pre, paths[1], page)
                 ));
@@ -316,10 +326,11 @@ public class PageBuilder{
    *
    * @param hash The hash to associated with the payload.
    * @param repo The repository to associate with the content to be served.
+   * @param footer Allow a footer to be generated after cache served.
    * @param payload The entire payload to be served up to the user.
    * @return The processed payload.
    **/
-  private byte[] updateCache(String hash, String repo, String payload){
+  private byte[] updateCache(String hash, String repo, boolean footer, String payload){
     Cache c = new Cache();
     if(repo != null){
       c.repo = repos.get(repo);
@@ -330,6 +341,7 @@ public class PageBuilder{
       c.timestamp = System.currentTimeMillis();
     }
     c.index = hash;
+    c.footer = footer;
     c.payload = payload.getBytes();
     cache.put(hash, c);
     return c.payload;
