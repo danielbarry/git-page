@@ -540,9 +540,34 @@ public class PageBuilder{
    * @return The sanitized string.
    **/
   public static String sanitize(String s){
-    return s.replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;");
+    StringBuilder res = new StringBuilder();
+    int x = 0;
+    int i = x;
+    /* Search and replace special characters */
+    for(; x < s.length(); x++){
+      switch(s.charAt(x)){
+        case '&' :
+          res.append(s.substring(i, x));
+          res.append("&amp;");;
+          i = x + 1;
+          break;
+        case '<' :
+          res.append(s.substring(i, x));
+          res.append("&lt;");;
+          i = x + 1;
+          break;
+        case '>' :
+          res.append(s.substring(i, x));
+          res.append("&gt;");;
+          i = x + 1;
+          break;
+      }
+    }
+    /* Compose remaining parts of string */
+    if(x != i){
+      res.append(s.substring(i, x));
+    }
+    return res.toString();
   }
 
   /**
