@@ -403,7 +403,7 @@ public class Git{
                       break;
                     case "author" :
                       c.author = PageBuilder.sanitize(
-                        line.substring(0, line.indexOf('<'))
+                        line.substring(0, line.indexOf('<') - 1)
                       );
                       c.author_email = PageBuilder.sanitize(line.substring(
                         line.indexOf('<') + 1, line.indexOf('>')
@@ -421,7 +421,7 @@ public class Git{
                       break;
                     case "committer" :
                       c.commit = PageBuilder.sanitize(
-                        line.substring(0, line.indexOf('<'))
+                        line.substring(0, line.indexOf('<') - 1)
                       );
                       c.commit_email = PageBuilder.sanitize(line.substring(
                         line.indexOf('<') + 1, line.indexOf('>')
