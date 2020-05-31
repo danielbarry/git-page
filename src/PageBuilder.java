@@ -637,15 +637,15 @@ public class PageBuilder{
         xml +=
           "<item>" +
             "<title>" + subject + "</title>" +
-            "<guid>" + url + pre + "/" + proj + "/commit/" + logs[x].hash + "</guid>" +
-            "<description><![CDATA[<table>" +
-              "<tr><td><a href=\"" + pre + "/" + proj + "/commit/" + logs[x].hash + "\">" +
-                logs[x].hash + "</a></td></tr>" +
-              "<tr><td>" + logs[x].author_date.toString() + "</td></tr>" +
-              "<tr><td>" + logs[x].author + "</td></tr>" +
-              "<tr><td>" + logs[x].subject + "</td></tr>" +
-            "</table>]]></description>" +
-            "<link>" + url + pre + "/" + proj + "/commit/" + logs[x].hash + "</link>" +
+            "<author>" + logs[x].author + "</author>" +
+            "<pubDate>" +
+              intToDay(logs[x].author_date.getDay()) + ", " +
+              logs[x].author_date.toGMTString() +
+            "</pubDate>" +
+            "<description>" + logs[x].subject + "</description>" +
+            "<link>" +
+              url + pre + "/" + proj + "/commit/" + logs[x].hash +
+            "</link>" +
           "</item>";
       }else{
         Main.warn("Malformed commit messaged skipped");
@@ -654,5 +654,33 @@ public class PageBuilder{
     /* Generate RSS footers */
     xml += "</channel></rss>";
     os.write(xml.getBytes());
+  }
+
+  /**
+   * intToDay()
+   *
+   * Helper functions for the RSS feed.
+   **/
+  private static String intToDay(int day){
+    switch(day){
+      case 0 :
+        return "Sun";
+      case 1 :
+        return "Mon";
+      case 2 :
+        return "Tue";
+      case 3 :
+        return "Wed";
+      case 4 :
+        return "Thu";
+      case 5 :
+        return "Fri";
+      case 6 :
+        return "Sat";
+      case 7 :
+        return "Sun";
+      default :
+        return "";
+    }
   }
 }
