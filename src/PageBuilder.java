@@ -13,6 +13,19 @@ import java.util.Scanner;
  **/
 public class PageBuilder{
   /**
+   * Cache.PageBuilder.java
+   *
+   * Store a cache item and the relevant data to determine if it's still
+   * up-to-date;
+   **/
+  private class Cache{
+    public String index;
+    public long timestamp;
+    public Git repo;
+    public byte[] payload;
+  }
+
+  /**
    * MarkState.PageBuilder.java
    *
    * Track the state of the simple markdown parser.
@@ -33,22 +46,21 @@ public class PageBuilder{
     "htm",
     "html"
   };
-  private static final byte[] HTTP_HEAD = (
+  private static final String HTTP_HEAD =
     "HTTP/1.1 200 OK\r\n" +
     "Content-Type: text/html\r\n" +
-    "\r\n"
-  ).getBytes();
-  private static final byte[] XML_HEAD = (
+    "\r\n";
+  private static final String XML_HEAD =
     "HTTP/1.1 200 OK\r\n" +
     "Content-Type: application/xml\r\n" +
-    "\r\n"
-  ).getBytes();
+    "\r\n";
 
-  private byte[] indexBad;
+  private String indexBad;
   private String reqPre;
   private String url;
   private HashMap<String, Git> repos;
-  private byte[] pageHeader;
+  private String pageHeader;
+  private HashMap<String, Cache> cache;
 
   /**
    * PageBuilder()
@@ -63,7 +75,7 @@ public class PageBuilder{
     String css = "";
     String title = "Git Page";
     String logo = "";
-    indexBad = "Error".getBytes();
+    indexBad = "Error";
     reqPre = "";
     url = "127.0.0.1";
     /* Make sure the configuration structure exists */
@@ -78,7 +90,7 @@ public class PageBuilder{
       JSON sConfig = config.get("page");
       /* Try to set index bad */
       if(sConfig.get("error") != null && sConfig.get("error").value() != null){
-        indexBad = sConfig.get("error").value().getBytes();
+        indexBad = sConfig.get("error").value();
         Main.log("Error set");
       }
       /* Try to set CSS */
@@ -120,7 +132,7 @@ public class PageBuilder{
       Main.warn("No configuration found for server");
     }
     /* Pre-process the page header */
-    pageHeader = (
+    pageHeader =
       /* Tell the browser what we are */
       "<!DOCTYPE html><html>" +
       /* Define the page title */
@@ -138,8 +150,9 @@ public class PageBuilder{
         "<b>" + title + "</b> > " +
         "<a href=\"" + reqPre + "/\">Home</a>" +
         "</nav></td>" +
-      "</tr></table>"
-    ).getBytes();
+      "</tr></table>";
+    /* Setup page cache */
+    cache = new HashMap<String, Cache>();
   }
 
   /**
@@ -153,59 +166,107 @@ public class PageBuilder{
   public void generate(OutputStream os, String req) throws IOException{
     /* Store entry timestamp */
     long start = System.nanoTime();
+    /* Check if we can potentially serve out of cache */
+    Cache c = cache.get(req);
+    if(c != null && c.index.equals(req)){
+      /* If there is an associated repo, make sure it's still valid */
+      if(c.repo != null && c.timestamp == c.repo.lastUpdate()){
+        os.write(c.payload);
+      /* Serve it anyway */
+      }else{
+        os.write(c.payload);
+      }
+      os.write(genFooter(start).getBytes());
+      return;
+    }
+    /* TODO: Clean-up cache if it's getting too large. */
     /* Store pre-string for this request */
     String pre = reqPre;
     /* Handle different cases */
     switch(req){
       case "?" :
-        os.write(indexBad);
+        os.write((
+          genHeader(pre, null) +
+          indexBad +
+          genFooter(start)
+        ).getBytes());
         break;
       default :
         /* Check for special string */
+        String reqSub = req;
         if(req.startsWith(pre)){
-          req = req.substring(pre.length());
+          reqSub = reqSub.substring(pre.length());
         }
-        String[] paths = req.split("/");
+        String[] paths = reqSub.split("/");
         /* Process the request */
         switch(paths.length){
           case 0 :
           case 1 :
-            genHeader(os, pre, null);
-            genRoot(os, pre);
-            genFooter(os, pre, start);
+            os.write(updateCache(
+              req,
+              null,
+              genHeader(pre, null) +
+              genRoot(pre)
+            ));
+            os.write(genFooter(start).getBytes());
             break;
           case 2 :
-            genHeader(os, pre, paths[1]);
-            genOverview(os, pre, paths[1]);
-            genFooter(os, pre, start);
+            os.write(updateCache(
+              req,
+              paths[1],
+              genHeader(pre, paths[1]) +
+              genOverview(pre, paths[1])
+            ));
+            os.write(genFooter(start).getBytes());
             break;
           case 3 :
             switch(paths[2]){
               case "commit" :
               case "diff" :
               case "page" :
-                genHeader(os, pre, paths[1]);
-                genPage(os, pre, paths[1], 0);
-                genFooter(os, pre, start);
+                os.write(updateCache(
+                  req,
+                  paths[1],
+                  genHeader(pre, paths[1]) +
+                  genPage(pre, paths[1], 0)
+                ));
+                os.write(genFooter(start).getBytes());
                 break;
               case "rss" :
-                genRSS(os, pre, paths[1]);
+                os.write(updateCache(
+                  req,
+                  paths[1],
+                  genRSS(pre, paths[1])
+                ));
                 break;
               default :
-                genHeader(os, pre, paths[1]);
-                os.write(indexBad);
-                genFooter(os, pre, start);
+                os.write((
+                  genHeader(pre, paths[1]) +
+                  indexBad +
+                  genFooter(start)
+                ).getBytes());
                 break;
             }
             break;
           case 4 :
-            genHeader(os, pre, paths[1]);
             switch(paths[2]){
               case "commit" :
-                genCommit(os, pre, paths[1], paths[3]);
+                os.write(updateCache(
+                  req,
+                  paths[1],
+                  genHeader(pre, paths[1]) +
+                  genCommit(pre, paths[1], paths[3])
+                ));
+                os.write(genFooter(start).getBytes());
                 break;
               case "diff" :
-                genDiff(os, pre, paths[1], paths[3]);
+                os.write(updateCache(
+                  req,
+                  paths[1],
+                  genHeader(pre, paths[1]) +
+                  genDiff(pre, paths[1], paths[3])
+                ));
+                os.write(genFooter(start).getBytes());
                 break;
               case "page" :
                 int page = 0;
@@ -215,18 +276,29 @@ public class PageBuilder{
                   /* Fail silently */
                   page = 0;
                 }
-                genPage(os, pre, paths[1], page);
+                os.write(updateCache(
+                  req,
+                  paths[1],
+                  genHeader(pre, paths[1]) +
+                  genPage(pre, paths[1], page)
+                ));
+                os.write(genFooter(start).getBytes());
                 break;
               default :
-                os.write(indexBad);
+                os.write((
+                  genHeader(pre, paths[1]) +
+                  indexBad +
+                  genFooter(start)
+                ).getBytes());
                 break;
             }
-            genFooter(os, pre, start);
             break;
           default :
-            genHeader(os, pre, paths[1]);
-            os.write(indexBad);
-            genFooter(os, pre, start);
+            os.write((
+              genHeader(pre, paths[1]) +
+              indexBad +
+              genFooter(start)
+            ).getBytes());
             break;
         }
         break;
@@ -234,31 +306,65 @@ public class PageBuilder{
   }
 
   /**
+   * updateCache()
+   *
+   * Update the server cache and return the payload to be output.
+   *
+   * @param hash The hash to associated with the payload.
+   * @param repo The repository to associate with the content to be served.
+   * @param payload The entire payload to be served up to the user.
+   * @return The processed payload.
+   **/
+  private byte[] updateCache(String hash, String repo, String payload){
+    Cache c = new Cache();
+    if(repo != null){
+      c.repo = repos.get(repo);
+    }
+    if(c.repo != null){
+      c.timestamp = c.repo.lastUpdate();
+    }else{
+      c.timestamp = System.currentTimeMillis();
+    }
+    c.index = hash;
+    c.payload = payload.getBytes();
+    cache.put(hash, c);
+    return c.payload;
+  }
+
+  /**
    * genHeader()
    *
    * Generate a header for the page.
    *
-   * @param os The output stream to be written to.
    * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon. If NULL, no project
    * navigation is displayed.
+   * @return The content.
    **/
-  private void genHeader(OutputStream os, String pre, String proj) throws IOException{
+  private String genHeader(String pre, String proj) throws IOException{
+    StringBuilder header = new StringBuilder();
     /* Send the header early */
-    os.write(HTTP_HEAD);
+    header.append(HTTP_HEAD);
     /* Spit out pre-processed header */
-    os.write(pageHeader);
+    header.append(pageHeader);
     /* Project navigation if required */
     if(proj != null && repos.containsKey(proj)){
       String url = pre + "/" + proj;
-      os.write((
-        "<nav>" +
-          "<a href=\"" + url + "\">" + proj + "</a> " +
-          "<a href=\"" + url + "/commit\">Commits</a> " +
-          "<a href=\"" + url + "/rss\">RSS</a>" +
-        "</nav>"
-      ).getBytes());
+      header.append("<nav>");
+      header.append(  "<a href=\"");
+      header.append(    url);
+      header.append(    "\">");
+      header.append(    proj);
+      header.append(  "</a> ");
+      header.append(  "<a href=\"");
+      header.append(    url);
+      header.append(    "/commit\">Commits</a> ");
+      header.append(  "<a href=\"");
+      header.append(    url);
+      header.append(    "/rss\">RSS</a>");
+      header.append("</nav>");
     }
+    return header.toString();
   }
 
   /**
@@ -266,17 +372,15 @@ public class PageBuilder{
    *
    * Generate a footer for the page.
    *
-   * @param os The output stream to be written to.
-   * @param pre Set the pre-string for any links.
    * @param ts The timestamp processing began.
+   * @return The content.
    **/
-  private void genFooter(OutputStream os, String pre, long ts) throws IOException{
-    os.write((
+  private String genFooter(long ts) throws IOException{
+    return
       "<hr>Generated in " +
       ((System.nanoTime() - ts) / 1000000) +
       "ms" +
-      "</body></html>"
-    ).getBytes());
+      "</body></html>";
   }
 
   /**
@@ -284,16 +388,23 @@ public class PageBuilder{
    *
    * Generate a root list of projects.
    *
-   * @param os The output stream to be written to.
    * @param pre Set the pre-string for any links.
+   * @return The content.
    **/
-  private void genRoot(OutputStream os, String pre) throws IOException{
-    String rootHTML = "<table>";
+  private String genRoot(String pre) throws IOException{
+    StringBuilder rootHTML = new StringBuilder();
+    rootHTML.append("<table>");
     for(String key : repos.keySet()){
-      rootHTML += "<tr><td><a href=\"" + pre + "/" + key + "\">" + key + "</a></td></tr>";
+      rootHTML.append("<tr><td><a href=\"");
+      rootHTML.append(  pre);
+      rootHTML.append(  "/");
+      rootHTML.append(  key);
+      rootHTML.append(  "\">");
+      rootHTML.append(  key);
+      rootHTML.append(  "</a></td></tr>");
     }
-    rootHTML += "</table>";
-    os.write(rootHTML.getBytes());
+    rootHTML.append("</table>");
+    return rootHTML.toString();
   }
 
   /**
@@ -301,15 +412,14 @@ public class PageBuilder{
    *
    * Generate the repository overview page.
    *
-   * @param os The output stream to be written to.
    * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
+   * @return The content.
    **/
-  private void genOverview(OutputStream os, String pre, String proj) throws IOException{
+  private String genOverview(String pre, String proj) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj)){
-      os.write(indexBad);
-      return;
+      return indexBad;
     }
     /* Find the overview page */
     File file = null;
@@ -374,9 +484,9 @@ public class PageBuilder{
       if(ext == 2){
         overviewHTML.append("</code></pre>");
       }
-      os.write(overviewHTML.toString().getBytes());
+      return overviewHTML.toString();
     }else{
-      os.write("No recognized overview found.".getBytes());
+      return "No recognized overview found.";
     }
   }
 
@@ -385,16 +495,15 @@ public class PageBuilder{
    *
    * Generate a given page for a given project, otherwise display an error.
    *
-   * @param os The output stream to be written to.
    * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
    * @param page The page number of commits to display.
+   * @return The content.
    **/
-  private void genPage(OutputStream os, String pre, String proj, int page) throws IOException{
+  private String genPage(String pre, String proj, int page) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj) || page < 0){
-      os.write(indexBad);
-      return;
+      return indexBad;
     }
     /* Generate pages navigation */
     StringBuilder pageHTML = new StringBuilder();
@@ -459,7 +568,7 @@ public class PageBuilder{
       }
     }
     pageHTML.append("</table>");
-    os.write(pageHTML.toString().getBytes());
+    return pageHTML.toString();
   }
 
   /**
@@ -468,12 +577,12 @@ public class PageBuilder{
    * Generate a given commit summary for a given project, otherwise display an
    * error.
    *
-   * @param os The output stream to be written to.
    * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
    * @param hash The commit hash to display a summary for.
+   * @return The content.
    **/
-  private void genCommit(OutputStream os, String pre, String proj, String hash) throws IOException{
+  private String genCommit(String pre, String proj, String hash) throws IOException{
     /* Make sure the request params are valid */
     if(
       proj == null             ||
@@ -481,8 +590,7 @@ public class PageBuilder{
       hash == null           ||
       !Git.validCommit(hash)
     ){
-      os.write(indexBad);
-      return;
+      return indexBad;
     }
     /* Generate pages navigation */
     StringBuilder commitHTML = new StringBuilder();
@@ -506,8 +614,7 @@ public class PageBuilder{
     Git.Commit commit = repos.get(proj).commit(hash);
     /* Make sure it exists */
     if(commit == null){
-      os.write(indexBad);
-      return;
+      return indexBad;
     }
     commitHTML.append("<table>");
     commitHTML.append(  "<tr><td>Hash</td><td><a href=\"");
@@ -553,7 +660,7 @@ public class PageBuilder{
     commitHTML.append(    commit.subject);
     commitHTML.append(  "</td></tr>");
     commitHTML.append("</table>");
-    os.write(commitHTML.toString().getBytes());
+    return commitHTML.toString();
   }
 
   /**
@@ -561,12 +668,12 @@ public class PageBuilder{
    *
    * Generate the code difference for a given commit.
    *
-   * @param os The output stream to be written to.
    * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
    * @param commit The commit to display a summary for.
+   * @return The content.
    **/
-  private void genDiff(OutputStream os, String pre, String proj, String commit) throws IOException{
+  private String genDiff(String pre, String proj, String commit) throws IOException{
     /* Make sure the request params are valid */
     if(
       proj == null             ||
@@ -574,8 +681,7 @@ public class PageBuilder{
       commit == null           ||
       !Git.validCommit(commit)
     ){
-      os.write(indexBad);
-      return;
+      return indexBad;
     }
     /* Generate pages navigation */
     StringBuilder diffHTML = new StringBuilder();
@@ -600,7 +706,7 @@ public class PageBuilder{
     diffHTML.append("<pre><code>");
     diffHTML.append(  sanitize(diff));
     diffHTML.append("</code></pre>");
-    os.write(diffHTML.toString().getBytes());
+    return diffHTML.toString();
   }
 
   /**
@@ -705,20 +811,20 @@ public class PageBuilder{
    *
    * Generate an RSS feed for a given project.
    *
-   * @param os The output stream to be written to.
    * @param pre Set the pre-string for any links.
    * @param proj The project name to be acted upon.
+   * @return The content.
    **/
-  private void genRSS(OutputStream os, String pre, String proj) throws IOException{
+  private String genRSS(String pre, String proj) throws IOException{
     /* Make sure the request params are valid */
     if(proj == null || !repos.containsKey(proj)){
       /* TODO: Not clear what to write if feed cannot be generated. */
-      return;
+      return "";
     }
-    /* Send the header early */
-    os.write(XML_HEAD);
-    /* Generate RSS headers */
     StringBuilder xml = new StringBuilder();
+    /* Send the header early */
+    xml.append(XML_HEAD);
+    /* Generate RSS headers */
     xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><rss version=\"2.0\"><channel>");
     xml.append("<title>");
     xml.append(  proj);
@@ -769,7 +875,7 @@ public class PageBuilder{
     }
     /* Generate RSS footers */
     xml.append("</channel></rss>");
-    os.write(xml.toString().getBytes());
+    return xml.toString();
   }
 
   /**
