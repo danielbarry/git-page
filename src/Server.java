@@ -32,7 +32,7 @@ public class Server extends Thread{
     /* Set sane defaults */
     int port = 8080;
     headSize = 256;
-    maxInput = 65536;
+    maxInput = 256 * 256;
     maxWait = 5000;
     /* Try to get server settings */
     if(config.get("server") != null){

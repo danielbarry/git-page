@@ -88,7 +88,7 @@ public class Git{
     /* TODO: Figure out valid blob structure. */
   }
 
-  private static final int GIT_MAX_INPUT = 65536;
+  private static final int GIT_MAX_INPUT = 256 * 256;
   private static final int GIT_HASH_DIGEST_RAW = 20;
   private static final int GIT_HASH_DIGEST_STR = 40;
   private static final int GIT_INDEX_VAR_LEN = 4;
@@ -97,7 +97,7 @@ public class Git{
                                                   GIT_HASH_DIGEST_RAW     +
                                                   GIT_INDEX_VAR_LEN;
   private static final int GIT_PAGE_SIZE = 16;
-  private static final int GIT_PAGE_MAX = 65536;
+  private static final int GIT_PAGE_MAX = 256 * 256;
 
   private File dir;
   private boolean pull;
