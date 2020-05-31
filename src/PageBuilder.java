@@ -647,8 +647,6 @@ public class PageBuilder{
               url + pre + "/" + proj + "/commit/" + logs[x].hash +
             "</link>" +
           "</item>";
-      }else{
-        Main.warn("Malformed commit messaged skipped");
       }
     }
     /* Generate RSS footers */
