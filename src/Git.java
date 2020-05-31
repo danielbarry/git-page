@@ -735,6 +735,17 @@ public class Git{
   }
 
   /**
+   * getHead()
+   *
+   * Get the head commit.
+   *
+   * @return The head commit, otherwise NULL.
+   **/
+  public Commit getHead(){
+    return commits.get(refs.get("heads_master"));
+  }
+
+  /**
    * exec()
    *
    * Execute a give command and return the output. Note that this command will
