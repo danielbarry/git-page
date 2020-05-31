@@ -626,7 +626,7 @@ public class PageBuilder{
     xml += "<description>RSS feed for commits to " + proj + ".</description>";
     xml += "<link>" + url + pre + "/" + proj + "</link>";
     Git.Commit[] logs = repos.get(proj).log(0);
-    for(int x = 0; x < logs.length; x++){
+    for(int x = logs.length - 1; x >= 0; x--){
       if(logs[x] != null){
         /* Reduce length of commit message */
         String subject = logs[x].subject;
