@@ -724,6 +724,17 @@ public class Git{
   }
 
   /**
+   * numCommits()
+   *
+   * Get the number of commits.
+   *
+   * @return The number of commits in this repository.
+   **/
+  public int numCommits(){
+    return commits.size();
+  }
+
+  /**
    * exec()
    *
    * Execute a give command and return the output. Note that this command will
