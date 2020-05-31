@@ -36,7 +36,7 @@ public class PageBuilder{
     public boolean code = false;
   }
 
-  private static final int CACHE_MAX = 256 * 256 * 16;
+  private static final int CACHE_MAX = 256 * 256;
   private static final String[] INDEX_NAMES = new String[]{
     "readme",
     "index"
