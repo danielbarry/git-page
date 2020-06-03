@@ -305,6 +305,26 @@ public class JSON{
   }
 
   /**
+   * exists()
+   *
+   * Check whether a child element exists.
+   *
+   * @param key The key to be used to search for the element.
+   * @return True if the child exists, otherwise false.
+   **/
+  public boolean exists(String key){
+    if(childs != null && key != null){
+      for(int x = 0; x < childs.size(); x++){
+        JSON c = childs.get(x);
+        if(c.key(null) != null && c.key(null).equals(key)){
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    * toString()
    *
    * Convert this object and all child objects to a printable String.
