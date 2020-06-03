@@ -234,10 +234,11 @@ public class JSON{
    *
    * Get the key for this JSON object. NOTE: Array elements may not have a key.
    *
-   * @return The key, otherwise NULL.
+   * @param def The default value to return if the key is not set.
+   * @return The key, otherwise the default key.
    **/
-  public String key(){
-    return key;
+  public String key(String def){
+    return key != null ? key : def;
   }
 
   /**
@@ -245,10 +246,11 @@ public class JSON{
    *
    * Get the value for this JSON object. NOTE: Only strings will have keys.
    *
-   * @return The value, otherwise NULL.
+   * @param def The default value to return if the value is not set.
+   * @return The value, otherwise the default value.
    **/
-  public String value(){
-    return val != null ? val : key;
+  public String value(String def){
+    return val != null ? val : (key != null ? key : def);
   }
 
   /**
@@ -273,13 +275,13 @@ public class JSON{
    * have child elements.
    *
    * @param x The index of the element to retrieve.
-   * @return The JSON object at the given location, otherwise NULL.
+   * @return The JSON object at the given location, otherwise this object.
    **/
   public JSON get(int x){
     if(childs != null && x >= 0 && x < childs.size()){
       return childs.get(x);
     }else{
-      return null;
+      return this;
     }
   }
 
@@ -290,18 +292,18 @@ public class JSON{
    * arrays can have child elements.
    *
    * @param key The key to be used to search for the element.
-   * @return The JSON object at the given location, otherwise NULL.
+   * @return The JSON object at the given location, otherwise this object.
    **/
   public JSON get(String key){
     if(childs != null && key != null){
       for(int x = 0; x < childs.size(); x++){
         JSON c = childs.get(x);
-        if(c != null && c.key() != null && c.key().equals(key)){
+        if(c != null && c.key(null) != null && c.key(null).equals(key)){
           return c;
         }
       }
     }
-    return null;
+    return this;
   }
 
   /**
