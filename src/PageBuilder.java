@@ -77,66 +77,18 @@ public class PageBuilder{
    * @param config Access to the configuration data.
    **/
   public PageBuilder(HashMap<String, Git> repos, JSON config){
-    /* Set sane defaults */
-    String css = "";
-    String title = "Git Page";
-    String logo = "";
-    indexBad = "Error";
-    reqPre = "";
-    url = "127.0.0.1";
-    /* Make sure the configuration structure exists */
-    if(config.get("repos") == null){
-      Main.warn("No repository configuration provided");
-      return;
-    }
     /* Add repos to be monitored */
     this.repos = repos;
-    /* Try to get page settings */
-    if(config.get("page") != null){
-      JSON sConfig = config.get("page");
-      /* Try to set index bad */
-      if(sConfig.get("error") != null && sConfig.get("error").value() != null){
-        indexBad = sConfig.get("error").value();
-        Main.log("Error set");
-      }
-      /* Try to set CSS */
-      if(sConfig.get("css") != null && sConfig.get("css").length() > 0){
-        css = "";
-        JSON cssConfig = sConfig.get("css");
-        for(int x = 0; x < cssConfig.length(); x++){
-          css += cssConfig.get(x).value();
-        }
-        Main.log("CSS set");
-      }
-      /* Try to set request title */
-      if(sConfig.get("title") != null && sConfig.get("title").value() != null){
-        title = sConfig.get("title").value();
-        Main.log("Title set to '" + title + "'");
-      }
-      /* Try to set request logo */
-      if(sConfig.get("logo") != null && sConfig.get("logo").value() != null){
-        logo = sConfig.get("logo").value();
-        Main.log("Logo set");
-      }
-    }else{
-      Main.warn("No configuration found for server");
+    /* Set variables from configuration */
+    String css = "";
+    for(int x = 0; x < config.get("page").get("css").length(); x++){
+      css += config.get("page").get("css").get(x).value("");
     }
-    /* Try to get server settings */
-    if(config.get("server") != null){
-      JSON sConfig = config.get("server");
-      /* Try to set request pre-string */
-      if(sConfig.get("url-sub") != null && sConfig.get("url-sub").value() != null){
-        reqPre = sConfig.get("url-sub").value();
-        Main.log("Request pre-string set to '" + reqPre + "'");
-      }
-      /* Try to set URL */
-      if(sConfig.get("url") != null && sConfig.get("url").value() != null){
-        url = sConfig.get("url").value();
-        Main.log("Request URL set to '" + url + "'");
-      }
-    }else{
-      Main.warn("No configuration found for server");
-    }
+    String title = config.get("page").get("title").value("Git Page");
+    String logo = config.get("page").get("logo").value("");
+    indexBad = config.get("page").get("error").value("Error");
+    reqPre = config.get("server").get("url-sub").value("");
+    url = config.get("server").get("url").value("127.0.0.1");
     cacheMax = Integer.parseInt(config.get("server").get("cache-max").value("65536"));
     /* Pre-process the page header */
     pageHeader =
