@@ -23,6 +23,7 @@ public class PageBuilder{
   private class Cache{
     public String index;
     public long timestamp;
+    public long timeout;
     public Git repo;
     public byte[] payload;
     public boolean footer;
@@ -38,6 +39,7 @@ public class PageBuilder{
     public boolean code = false;
   }
 
+  private static final long TIME_DAY_MS = 24 * 60 * 60 * 1000;
   private static final int CACHE_MAX = 256 * 256;
   private static final String[] INDEX_NAMES = new String[]{
     "readme",
@@ -170,13 +172,16 @@ public class PageBuilder{
   public void generate(OutputStream os, String req) throws IOException{
     /* Store entry timestamp */
     long start = System.nanoTime();
+    long startMs = System.currentTimeMillis();
     /* Check if we can potentially serve out of cache */
     Cache c = cache.get(req);
     if(c != null && c.index.equals(req)){
       /* If there is an associated repo, make sure it's still valid */
       if(
-        (c.repo != null && c.timestamp == c.repo.lastUpdate()) ||
-        c.repo == null
+        ((c.repo != null && c.timestamp == c.repo.lastUpdate()) ||
+         (c.repo == null                                      )) &&
+        ((c.timeout != 0 && c.timeout > startMs               ) ||
+         (c.timeout == 0                                      ))
       ){
         os.write(c.payload);
         /* Should we also output a footer? */
@@ -214,6 +219,7 @@ public class PageBuilder{
               req,
               null,
               true,
+              0,
               genHeader(pre, null) +
               genRoot(pre)
             ));
@@ -224,6 +230,7 @@ public class PageBuilder{
               req,
               paths[1],
               true,
+              TIME_DAY_MS,
               genHeader(pre, paths[1]) +
               genOverview(pre, paths[1])
             ));
@@ -238,6 +245,7 @@ public class PageBuilder{
                   req,
                   paths[1],
                   true,
+                  0,
                   genHeader(pre, paths[1]) +
                   genPage(pre, paths[1], 0)
                 ));
@@ -248,6 +256,7 @@ public class PageBuilder{
                   req,
                   paths[1],
                   false,
+                  0,
                   genRSS(pre, paths[1])
                 ));
                 break;
@@ -267,6 +276,7 @@ public class PageBuilder{
                   req,
                   paths[1],
                   true,
+                  0,
                   genHeader(pre, paths[1]) +
                   genCommit(pre, paths[1], paths[3])
                 ));
@@ -277,6 +287,7 @@ public class PageBuilder{
                   req,
                   paths[1],
                   true,
+                  0,
                   genHeader(pre, paths[1]) +
                   genDiff(pre, paths[1], paths[3])
                 ));
@@ -294,6 +305,7 @@ public class PageBuilder{
                   req,
                   paths[1],
                   true,
+                  0,
                   genHeader(pre, paths[1]) +
                   genPage(pre, paths[1], page)
                 ));
@@ -328,10 +340,17 @@ public class PageBuilder{
    * @param hash The hash to associated with the payload.
    * @param repo The repository to associate with the content to be served.
    * @param footer Allow a footer to be generated after cache served.
+   * @param timeout When to re-process this cache entry, is set to zero ignore.
    * @param payload The entire payload to be served up to the user.
    * @return The processed payload.
    **/
-  private byte[] updateCache(String hash, String repo, boolean footer, String payload){
+  private byte[] updateCache(
+    String hash,
+    String repo,
+    boolean footer,
+    long timeout,
+    String payload
+  ){
     Cache c = new Cache();
     if(repo != null){
       c.repo = repos.get(repo);
@@ -342,6 +361,11 @@ public class PageBuilder{
       c.timestamp = System.currentTimeMillis();
     }
     c.index = hash;
+    if(timeout != 0){
+      c.timeout = timeout + c.timestamp;
+    }else{
+      c.timeout = timeout;
+    }
     c.footer = footer;
     c.payload = payload.getBytes();
     cache.put(hash, c);
