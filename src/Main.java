@@ -79,26 +79,21 @@ public class Main{
     for(int x = 0; x < config.get("repos").length(); x++){
       JSON entry = config.get("repos").get(x);
       if(
-        entry == null                                 ||
-        entry.get("dir") == null                      ||
-        entry.get("dir").value() == null              ||
-        entry.get("url") == null                      ||
-        entry.get("url").value() == null
+        entry.get("dir").value(null) == null ||
+        entry.get("url").value(null) == null
       ){
         Main.log("Skipping repository #" + x);
         break;
       }
-      File d = new File(entry.get("dir").value());
+      File d = new File(entry.get("dir").value(null));
       if(d.exists() && d.isDirectory() && d.canRead()){
         log("Adding repository '" + d.getAbsolutePath() + "'");
         /* Get if we want the repo to be able to pull */
-        boolean pull = entry.get("maintain") != null    &&
-          entry.get("maintain").value() != null         &&
-          entry.get("maintain").value().equals("true");
+        boolean pull = entry.get("maintain").value("false").equals("true");
         Git git = new Git(d.getAbsoluteFile(), pull);
-        repos.put(entry.get("url").value(), git);
+        repos.put(entry.get("url").value(null), git);
       }else{
-        Main.warn("Unable to use repository '" + entry.get("url").value() + "'");
+        Main.warn("Can't add repo '" + entry.get("url").value("NULL") + "'");
       }
     }
     return repos;
