@@ -22,17 +22,11 @@ public class Maintain extends Thread{
    * @param config Access to the configuration data.
    **/
   public Maintain(HashMap<String, Git> repos, JSON config){
-    /* Set sane defaults */
-    repoLoopMillis = 1000 * 600;
     /* Get a loop time */
-    if(
-      config.get("maintain") != null &&
-      config.get("maintain").get("loop-wait-s") != null &&
-      config.get("maintain").get("loop-wait-s").value() != null
-    ){
-      repoLoopMillis = 1000 *
-        Integer.parseInt(config.get("maintain").get("loop-wait-s").value());
-    }
+    repoLoopMillis = 1000 * Integer.parseInt(
+      config.get("maintain").get("loop-wait-s").value("600000")
+    );
+    Main.log("Maintenance loop wait set to '" + repoLoopMillis + "'");
     /* Add repos to be monitored */
     this.repos = repos;
   }
@@ -44,7 +38,6 @@ public class Maintain extends Thread{
    **/
   @Override
   public void run(){
-    /* TODO: Better check for repos to maintain. */
     /* Make sure there is something to maintain */
     if(repos.size() <= 0){
       Main.log("No repos to maintain, stopping thread");
