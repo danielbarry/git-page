@@ -29,37 +29,16 @@ public class Server extends Thread{
    * @param config Access to the configuration data.
    **/
   public Server(HashMap<String, Git> repos, JSON config){
-    /* Set sane defaults */
-    int port = 8080;
-    headSize = 256;
-    maxInput = 256 * 256;
-    maxWait = 5000;
-    /* Try to get server settings */
-    if(config.get("server") != null){
-      JSON sConfig = config.get("server");
-      /* Try to set port */
-      if(sConfig.get("port") != null && sConfig.get("port").value() != null){
-        port = Integer.parseInt(sConfig.get("port").value());
-        Main.log("Port set to '" + port + "'");
-      }
-      /* Try to set head size */
-      if(sConfig.get("head-size") != null && sConfig.get("head-size").value() != null){
-        headSize = Integer.parseInt(sConfig.get("head-size").value());
-        Main.log("Head size set to '" + headSize + "'");
-      }
-      /* Try to set max input */
-      if(sConfig.get("max-input") != null && sConfig.get("max-input").value() != null){
-        maxInput = Integer.parseInt(sConfig.get("max-input").value());
-        Main.log("Max input set to '" + maxInput + "'");
-      }
-      /* Try to set max wait */
-      if(sConfig.get("max-wait-ms") != null && sConfig.get("max-wait-ms").value() != null){
-        maxWait = Integer.parseInt(sConfig.get("max-wait-ms").value());
-        Main.log("Max wait set to '" + maxWait + "'");
-      }
-    }else{
-      Main.warn("No configuration found for server");
-    }
+    /* Get server settings */
+    int port = Integer.parseInt(config.get("server").get("port").value("8080"));
+    headSize = Integer.parseInt(config.get("server").get("head-size").value("256"));
+    maxInput = Integer.parseInt(config.get("server").get("max-input").value("65536"));
+    maxWait = Integer.parseInt(config.get("server").get("max-wait-ms").value("5000"));
+    /* Log written values */
+    Main.log("Port set to '" + port + "'");
+    Main.log("Head size set to '" + headSize + "'");
+    Main.log("Max input set to '" + maxInput + "'");
+    Main.log("Max wait set to '" + maxWait + "'");
     /* Try to start the server */
     try{
       ss = new ServerSocket(port);
