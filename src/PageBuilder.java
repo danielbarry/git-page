@@ -40,7 +40,6 @@ public class PageBuilder{
   }
 
   private static final long TIME_DAY_MS = 24 * 60 * 60 * 1000;
-  private static final int CACHE_MAX = 256 * 256;
   private static final String[] INDEX_NAMES = new String[]{
     "readme",
     "index"
@@ -64,6 +63,7 @@ public class PageBuilder{
   private String indexBad;
   private String reqPre;
   private String url;
+  private int cacheMax;
   private HashMap<String, Git> repos;
   private String pageHeader;
   private HashMap<String, Cache> cache;
@@ -137,6 +137,7 @@ public class PageBuilder{
     }else{
       Main.warn("No configuration found for server");
     }
+    cacheMax = Integer.parseInt(config.get("server").get("cache-max").value("65536"));
     /* Pre-process the page header */
     pageHeader =
       /* Tell the browser what we are */
@@ -378,7 +379,7 @@ public class PageBuilder{
    * Randomly delete items from the cash if the maximum cache size is breached.
    **/
   private void gcCache(){
-    if(cache.size() > CACHE_MAX){
+    if(cache.size() > cacheMax){
       Main.log("Garbage collecting cache");
       int r = (new Random()).nextInt(256);
       String[] keys = cache.keySet().toArray(new String[0]);

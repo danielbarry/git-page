@@ -37,6 +37,7 @@
     }
   ],
   "server": {
+    "cache-max": "65536",
     "head-size": "256",
     "max-input": "65536",
     "max-wait-ms": "5000",
